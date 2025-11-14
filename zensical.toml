@@ -307,6 +307,11 @@ toggle.name = "Switch to light mode"
 #icon = "fontawesome/brands/github"
 #link = "https://github.com/user/repo"
 
+# This sets the cookie consent scope for the entire site.
+# https://github.com/squidfunk/mkdocs-material/discussions/7947
+# https://squidfunk.github.io/mkdocs-material/setup/building-an-optimized-site/?h=#scope
+[project.extra]
+scope = "/"
 
 [project.extra.consent]
 title = "Cookie consent"
