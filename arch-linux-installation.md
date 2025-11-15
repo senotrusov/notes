@@ -26,7 +26,7 @@ This document is not intended to replace the [official Arch Wiki Installation Gu
 
     This guide includes steps that will erase all data on your disk. If that is not your intention, please adjust the disk preparation, partitioning, and formatting steps accordingly.
 
-This guide is provided under the terms of the [Apache License, Version 2.0](LICENSE.txt).
+This guide is provided under the terms of the [Apache License, Version 2.0](LICENSE).
 
 ## Recommended setup method
 
