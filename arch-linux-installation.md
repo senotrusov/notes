@@ -14,7 +14,7 @@
   limitations under the License.
 -->
 
-# Arch Linux installation notes
+# Arch Linux installation guide
 
 This guide presents a practical approach to installing [Arch Linux](https://archlinux.org/). It walks through disk layout, optional full-disk encryption, ext4 or Btrfs filesystems, and setup of the systemd-boot bootloader. It also includes steps for installing proprietary NVIDIA drivers.
 
