@@ -1,3 +1,9 @@
+---
+tags:
+  - Arch Linux
+hide:
+  - tags
+---
 <!--
   Copyright 2025 Stanislav Senotrusov
 
