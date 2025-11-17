@@ -215,7 +215,7 @@ fdisk -l
 
 === "SATA HDDs/SSDs"
 
-    Replace `/dev/nvme0n1` with the SATA device you want to use, and assign the partition names to variables. All data on the selected device will be permanently deleted.
+    Replace `/dev/sdb` with the SATA device you want to use, and assign the partition names to variables. All data on the selected device will be permanently deleted.
 
     ```sh
     target=/dev/sdb
@@ -225,3 +225,7 @@ fdisk -l
     ```
 
 *Note: The `root_actual` variable will be updated later if LUKS encryption is applied.*
+
+## ...
+
+TK
