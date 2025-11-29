@@ -46,7 +46,7 @@ Throughout this guide, variables are written with safety checks such as "${targe
 
 For manual input, you may simplify how you reference variables and use $target directly. Just make sure that every variable has been assigned correctly, contains the expected value, and does not include spaces before you run any commands.
 
-## Download the Arch ISO and Write the ISO to a USB Drive
+## Download the Arch ISO and write the ISO to a USB drive
 
 This section assumes you are using a Linux computer to create the bootable installation medium. If you are on Windows, macOS, or Android, please refer to the [USB flash installation medium](https://wiki.archlinux.org/title/USB_flash_installation_medium) article for instructions on preparing the USB drive. The Arch ISO file and additional download options are available on the [Arch Linux Downloads page](https://archlinux.org/download/).
 
@@ -58,19 +58,41 @@ Use `curl` to fetch the installation image from a reliable mirror. Note that Arc
 curl -O https://geo.mirror.pkgbuild.com/iso/latest/archlinux-x86_64.iso
 ```
 
-### Verify the SHA256 Checksum
+### Verify the SHA256 checksum
 
-Checking the SHA256 hash confirms the file's integrity against the official signature. Visit the [Arch Linux Download page](https://archlinux.org/download/#checksums) to find the correct hash for your ISO.
+Verifying the SHA256 hash ensures the downloaded file matches the official signature and has not been tampered with.
 
-Replace `SIGNATURE` with the copied hash and run the command to verify the download:
+=== "Using the one-liner"
 
-```sh
-sha256sum -c <(echo SIGNATURE archlinux-x86_64.iso)
-```
+    This method relies on the [archlinux.org](https://archlinux.org/) website to securely provide the correct checksum.
+    
+    ```sh
+    curl -s https://archlinux.org/download/ |
+      grep -m1 "SHA256" |
+      grep -oE "[a-f0-9]{64}" |
+      sed "s/$/  archlinux-x86_64.iso/" |
+      sha256sum -c -
+    ```
 
-If the output is `archlinux-x86_64.iso: OK`, the file is valid.
+    If the output is `archlinux-x86_64.iso: OK`, the file is valid.
 
-### Write the ISO to a USB Drive
+    !!! info
+
+        Although this one-liner is convenient, it may break if the download page changes its formatting. If you encounter issues, use the manual method.
+
+=== "Manually obtaining the checksum"
+
+    Visit the [Arch Linux download page](https://archlinux.org/download/#checksums) and copy the SHA256 hash for the ISO.
+
+    Replace `SIGNATURE` with the copied hash, then verify the file:
+
+    ```sh
+    sha256sum -c <(echo SIGNATURE archlinux-x86_64.iso)
+    ```
+
+    If the output is `archlinux-x86_64.iso: OK`, the file is valid.
+
+### Write the ISO to a USB drive
 
 Identify your target USB device carefully to avoid erasing the wrong disk, then set the device path variable.
 
@@ -78,6 +100,10 @@ Identify your target USB device carefully to avoid erasing the wrong disk, then 
 sudo fdisk -l
 ```
 
+!!! danger
+
+    The device you select will be completely erased in the following steps. Choose carefully to avoid deleting data from the wrong device.
+    
 Set the device path variable, replacing `sdX` with your USB drive's actual device name (e.g., `sdb`):
 
 ```sh
@@ -90,7 +116,7 @@ Use the `dd` utility to write the ISO to the USB device, which will permanently 
 sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
 ```
 
-### Verify the USB Copy (Optional)
+### Verify the USB copy (optional)
 
 To ensure the data was written correctly to the physical device, remove and reinsert the USB drive to clear any potential cache, and then compare the written data byte-by-byte with the original ISO file.
 
@@ -98,7 +124,7 @@ To ensure the data was written correctly to the physical device, remove and rein
 sudo cmp -n "$(stat -c %s archlinux-x86_64.iso)" archlinux-x86_64.iso "${flash:?}" && echo OK || echo ERROR
 ```
 
-## Boot from USB Flash Drive
+## Boot from USB flash drive
 
 Adjust your system's firmware settings (BIOS/UEFI) to select the USB drive as the boot device.
 
@@ -106,7 +132,7 @@ Disable Secure Boot in your firmware settings, as the official Arch Linux instal
 
 As soon as the live environment loads to a shell prompt, the USB drive can be safely removed. For more details on the process, see the [Installation guide: Boot the live environment](https://wiki.archlinux.org/title/Installation_guide#Boot_the_live_environment).
 
-## Improve Console Readability
+## Improve console readability
 
 Change the console font for better legibility, especially on high-resolution displays. Select one of the following commands to set the font size to 24, 28, or 32:
 
@@ -118,7 +144,7 @@ setfont ter-132b
  
 For more details on configuring the console font, refer to the [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console#Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
-## Verify Network Connectivity
+## Verify network connectivity
 
 A network connection is mandatory for installation. Wired connections usually work automatically.
 
@@ -166,11 +192,11 @@ passwd
     ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
     ```
 
-## Perform Basic System Checks
+## Perform basic system checks
 
 Confirm the live environment is correctly configured before proceeding.
 
-### Confirm UEFI Boot Mode
+### Confirm UEFI boot mode
 
 Verify that the system has booted in UEFI mode, as this guide assumes UEFI for `systemd-boot` installation.
 
@@ -180,7 +206,7 @@ cat /sys/firmware/efi/fw_platform_size
 
 If the file exists and contains `64`, the system is in 64-bit UEFI mode. If it doesn't exist, you are likely in legacy BIOS mode and must switch to UEFI in the firmware settings and reboot.
 
-### Check System Time
+### Check system time
 
 Verify the current time and that NTP synchronization is active, which is typically handled automatically by `systemd-timesyncd` in the live environment.
 
@@ -190,7 +216,7 @@ timedatectl
 
 The time zone here only affects the live environment and will be configured for the installed system later. See [update the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock) for details.
 
-## Assign Variables for Disk Identification
+## Assign variables for disk identification
 
 List available block devices to identify your installation target disk.
 
