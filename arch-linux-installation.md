@@ -565,7 +565,7 @@ Review the generated file and update it as needed, such as removing Btrfs `subvo
 
 ```sh
 cat /mnt/etc/fstab
-nano -/ /mnt/etc/fstab
+nano /mnt/etc/fstab
 ```
 
 ### Configure systemd-boot
