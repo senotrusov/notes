@@ -28,7 +28,7 @@ While I typically configure my desktop environment and dotfiles separately, this
 
 This document is not intended to replace the [official Arch Wiki Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most comprehensive and authoritative reference. Instead, it offers a personal and opinionated workflow, a set of practical notes meant to complement the Arch Wiki. Use both together to make informed decisions and adapt the process to your system.
 
-!!! warning
+!!! danger
 
     This guide includes steps that will erase all data on your disk. Adjust the disk preparation, partitioning, and formatting steps if this is not your intention.
 
@@ -76,7 +76,7 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
 
     If the output is `archlinux-x86_64.iso: OK`, the file is valid.
 
-    !!! info
+    !!! warning
 
         Although this one-liner is convenient, it may break if the download page changes its formatting. If you encounter issues, use the manual method.
 
@@ -129,6 +129,7 @@ sudo cmp -n "$(stat -c %s archlinux-x86_64.iso)" archlinux-x86_64.iso "${flash:?
 Access your system's firmware (BIOS/UEFI) settings to select the USB drive as the boot device.
 
 !!! warning
+
     **Disable Secure Boot** in your firmware settings. The official Arch Linux installation images do not support Secure Boot. Secure Boot configuration for the installed system is an advanced topic; consult the [Arch Wiki on Secure Boot](https://wiki.archlinux.org/title/Secure_Boot) if required.
 
 The USB drive can be safely removed once the live environment loads to a shell prompt.
@@ -148,7 +149,9 @@ setfont ter-128b
 setfont ter-132b
 ```
 
-For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console#Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
+!!! info
+
+    For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console#Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
 ## Verify network connectivity
 
@@ -158,11 +161,19 @@ A stable network connection is mandatory for the installation. Test connectivity
 ping -c 3 archlinux.org
 ```
 
-Wired connections typically work automatically. For wireless setup or troubleshooting, consult the [Installation guide#Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and [network configuration](https://wiki.archlinux.org/title/Network_configuration).
+Wired connections typically work automatically.
+
+!!! info
+
+    For wireless setup or troubleshooting, consult the [Installation guide#Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and [network configuration](https://wiki.archlinux.org/title/Network_configuration).
 
 ## Connect to the live environment by SSH (optional)
 
-Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research. Refer to [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) for more information.
+Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research.
+
+!!! info
+
+    Refer to [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) for more information.
 
 ### Set a temporary root password
 
@@ -210,7 +221,11 @@ If the file exists and contains `64`, the system is in 64-bit UEFI mode. If the 
 
 ### Check system time
 
-Verify the current time and that NTP synchronization is active (handled automatically by `systemd-timesyncd` in the live environment). For more details, see the Arch Wiki on [updating the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
+Verify the current time and that NTP synchronization is active (handled automatically by `systemd-timesyncd` in the live environment).
+
+!!! info
+
+    For more details, see the Arch Wiki on [updating the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
 
 ```sh
 timedatectl
@@ -230,7 +245,11 @@ fdisk -l
 
     The device you select will be completely erased in the following steps. Choose carefully to avoid data loss. Back up all necessary data.
 
-Use the appropriate tab for your disk type. For more information on disk partitioning, see the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and [Parted](https://wiki.archlinux.org/title/Parted).
+Use the appropriate tab for your disk type.
+
+!!! info
+
+    For more information on disk partitioning, see the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and [Parted](https://wiki.archlinux.org/title/Parted).
 
 === "NVMe Drives"
 
@@ -286,13 +305,19 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
 
     Check the `LBA Format` list at the end of the output.
 
-If a 4K format is supported but not active, reformat the drive to the optimal LBA Format ID. **This operation is destructive and erases all data.**
+If a 4K format is supported but not active, reformat the drive to the optimal LBA Format ID.
+
+!!! danger
+
+    This operation is destructive and erases all data.
 
 ```sh
 nvme format --lbaf=FORMAT_ID "${target:?}"
 ```
 
-See [Advanced Format#NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for details.
+!!! info
+
+    See [Advanced Format#NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for more details.
 
 ### Verify TRIM support
 
@@ -302,7 +327,9 @@ Verify TRIM support, which allows the OS to communicate unused data blocks to a 
 lsblk --discard "${target:?}"
 ```
 
-See [Solid state drive#TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for details.
+!!! info
+
+    See [Solid state drive#TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for more details.
 
 ## Create partitions
 
@@ -327,7 +354,11 @@ unit MiB
 ```
 
 **Create the EFI system partition (ESP)**\
-Create a 1 GiB (1024 MiB) FAT32 partition starting at 4 MiB. See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) page for more information.
+Create a 1 GiB (1024 MiB) FAT32 partition starting at 4 MiB.
+
+!!! info
+
+    See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) page for more information.
 
 ```parted
 mkpart efi fat32 4 1028
@@ -371,7 +402,11 @@ quit
 
 ## Set up LUKS encryption (optional)
 
-Encrypt the root partition (`$root_physical`) with LUKS2. If you skip this step, the `$root_actual` variable remains identical to `$root_physical`. For comprehensive details, see [dm-crypt/Encrypting an entire system](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system) and [Dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
+Encrypt the root partition (`$root_physical`) with LUKS2. If you skip this step, the `$root_actual` variable remains identical to `$root_physical`.
+
+!!! info
+
+    For details, see [dm-crypt/Encrypting an entire system](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system) and [Dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
 
 ### Format the root partition with LUKS2
 
@@ -385,7 +420,11 @@ cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --sector-siz
 
 ### Open the LUKS container and set persistent options
 
-Open the encrypted partition and map it to `/dev/mapper/luks-root`. The performance and discard options enabled here will persist across future unlocks. For performance and TRIM options, see [Dm-crypt/Specialties#Discard/TRIM support for solid state drives (SSD)](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and [Dm-crypt/Specialties#Disable workqueue for increased solid state drive (SSD) performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
+Open the encrypted partition and map it to `/dev/mapper/luks-root`. The performance and discard options enabled here will persist across future unlocks.
+
+!!! info
+
+    For performance and TRIM options, see [Dm-crypt/Specialties#Discard/TRIM support for solid state drives (SSD)](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and [Dm-crypt/Specialties#Disable workqueue for increased solid state drive (SSD) performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
 
 ```sh
 cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
@@ -401,7 +440,11 @@ root_actual="/dev/mapper/luks-root"
 
 ## Format and mount file systems
 
-Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`). See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
+Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`).
+
+!!! info
+
+    See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
 
 ### Root partition
 
@@ -409,7 +452,11 @@ Choose either Btrfs with subvolumes or the traditional ext4 filesystem.
 
 #### Root with Btrfs and subvolumes
 
-Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting. See [Btrfs](https://wiki.archlinux.org/title/Btrfs) and [Btrfs#Getting started](https://wiki.archlinux.org/title/Btrfs#Getting_started) for more information on Btrfs and subvolume setup.
+Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting.
+
+!!! info
+
+    See [Btrfs](https://wiki.archlinux.org/title/Btrfs) and [Btrfs#Getting started](https://wiki.archlinux.org/title/Btrfs#Getting_started) for more information on Btrfs and subvolume setup.
 
 **Format the partition:**
 
@@ -439,7 +486,11 @@ mount -m -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
 
 #### Root with ext4
 
-Ext4 is a traditional, robust, and mature filesystem. For details on ext4, see the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page.
+Ext4 is a traditional, robust, and mature filesystem.
+
+!!! info
+
+    See the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page for more information.
 
 **Format and mount:**
 
@@ -478,7 +529,11 @@ mount | grep /mnt
 
 ## Install essential packages
 
-Install the base system and all necessary packages using `pacstrap`. This includes the kernel, firmware, boot manager tools, network manager, and the chosen desktop environment (GNOME) and drivers (NVIDIA). See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
+Install the base system and all necessary packages using `pacstrap`. This includes the kernel, firmware, boot manager tools, network manager, and the chosen desktop environment (GNOME) and drivers (NVIDIA).
+
+!!! info
+
+    See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
 
 ```sh
 pacstrap -K /mnt \
@@ -499,7 +554,11 @@ The `-K` flag ensures a proper `pacman` keyring setup in the new system. Adjust 
 
 ### Fstab (file system table)
 
-Generate the `fstab` file, which the system uses at boot to determine which filesystems to mount. The `-U` option ensures partitions are identified by their UUIDs for reliable mounting. For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
+Generate the `fstab` file, which the system uses at boot to determine which filesystems to mount. The `-U` option ensures partitions are identified by their UUIDs for reliable mounting.
+
+!!! info
+
+    For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
 
 ```sh
 genfstab -U /mnt >> /mnt/etc/fstab
@@ -516,7 +575,11 @@ nano -/ /mnt/etc/fstab
 
 ### Configure systemd-boot
 
-Install the `systemd-boot` boot manager to the EFI System Partition (ESP) and create the basic configuration files. For more information on the boot manager, see [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot).
+Install the `systemd-boot` boot manager to the EFI System Partition (ESP) and create the basic configuration files.
+
+!!! info
+
+    For more information on the boot manager, see [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot).
 
 ```sh
 bootctl --esp-path=/mnt/boot install
@@ -532,7 +595,11 @@ echo "default arch.conf" >>/mnt/boot/loader/loader.conf
 
 **Create boot entry `arch.conf`**
 
-Define the boot process for the Arch Linux kernel. Consult the [systemd-boot loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) for advanced options.
+Define the boot process for the Arch Linux kernel.
+
+!!! info
+
+    Consult the [systemd-boot loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) for advanced options.
 
 **1. Get UUID**
 
@@ -568,7 +635,11 @@ kernel_args="${kernel_args:?} rootflags=subvol=/@"
 
 **4. Create the configuration file**
 
-The microcode files (`intel-ucode.img` and `amd-ucode.img`) must be listed before the main `initramfs-linux.img` so they are loaded first. **Ensure these microcode files are copied to `/mnt/boot` by `pacstrap` (they are dependencies of the `intel-ucode` and `amd-ucode` packages).** Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
+The microcode files (`intel-ucode.img` and `amd-ucode.img`) must be listed before the main `initramfs-linux.img` so they are loaded first. **Ensure these microcode files are copied to `/mnt/boot` by `pacstrap` (they are dependencies of the `intel-ucode` and `amd-ucode` packages).**
+
+!!! info
+
+    Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
 
 ```sh
 tee /mnt/boot/loader/entries/arch.conf <<EOF
@@ -583,7 +654,11 @@ EOF
 
 ## Chroot into the new system and configure
 
-Change the root directory into the newly installed system to perform final, system-specific configurations. See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) page for more information on this process.
+Change the root directory into the newly installed system to perform final, system-specific configurations.
+
+!!! info
+
+    See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) page for more information on this process.
 
 ```sh
 arch-chroot /mnt
@@ -591,13 +666,17 @@ arch-chroot /mnt
 
 ### Time configuration
 
-Set the system time zone and enable automatic synchronization. For more details, see [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and [System time](https://wiki.archlinux.org/title/System_time).
+Set the system time zone and enable automatic synchronization.
+
+!!! info
+
+    For more details, see [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and [System time](https://wiki.archlinux.org/title/System_time).
 
 List available time zones with:
 
 ```sh
 timedatectl list-timezones
-````
+```
 
 Set the system time zone by linking to the desired zone info file:
 
@@ -614,13 +693,21 @@ systemctl enable systemd-timesyncd.service
 
 ### Network configuration
 
-Set a unique hostname for your system. For more on network setup, consult the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration) and [Network configuration#Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
+Set a unique hostname for your system.
+
+!!! info
+
+    For more on network setup, consult the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration) and [Network configuration#Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
 
 ```sh
 echo myhostname >/etc/hostname
 ```
 
-Enable NetworkManager to manage network connections. Read more about [NetworkManager](https://wiki.archlinux.org/title/NetworkManager#Enable_NetworkManager) for advanced configuration.
+Enable NetworkManager to manage network connections.
+
+!!! info
+
+    Read more about [NetworkManager](https://wiki.archlinux.org/title/NetworkManager#Enable_NetworkManager) for advanced configuration.
 
 ```sh
 systemctl enable NetworkManager.service
@@ -628,7 +715,11 @@ systemctl enable NetworkManager.service
 
 ### Enable GNOME display manager (GDM) (if installed)
 
-If you installed the GNOME desktop environment, enable its display manager to start the graphical environment on boot. See [GDM#Enable GDM](https://wiki.archlinux.org/title/GDM#Enable_GDM) for details.
+If you installed the GNOME desktop environment, enable its display manager to start the graphical environment on boot.
+
+!!! info
+
+    See [GDM#Enable GDM](https://wiki.archlinux.org/title/GDM#Enable_GDM) for more details.
 
 ```sh
 systemctl enable gdm.service
@@ -636,13 +727,21 @@ systemctl enable gdm.service
 
 ### Set root password and create user
 
-Set the password for the root user. This password is crucial for security and is also required if the system fails to boot properly, allowing you to access the system through the `systemd emergency boot target` for troubleshooting and repair. See [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for context.
+Set the password for the root user. This password is crucial for security and is also required if the system fails to boot properly, allowing you to access the system through the `systemd emergency boot target` for troubleshooting and repair.
+
+!!! info
+
+    See [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context.
 
 ```sh
 passwd
 ```
 
-Create a standard non-root user (e.g., `foo`) and add them to the `wheel` group for `sudo` privileges. For more information on user management, see [Users and groups](https://wiki.archlinux.org/title/Users_and_groups).
+Create a standard non-root user (e.g., `foo`) and add them to the `wheel` group for `sudo` privileges.
+
+!!! info
+
+    For more information on user management, see [Users and groups](https://wiki.archlinux.org/title/Users_and_groups).
 
 ```sh
 useradd --create-home --groups wheel foo
@@ -657,7 +756,11 @@ echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 
 ### Swap setup
 
-Swap space manages memory overcommit and provides a backing store for less-used memory, preventing immediate Out-of-Memory (OOM) situations. See [Swap](https://wiki.archlinux.org/title/Swap) for a detailed guide on swap space configuration.
+Swap space manages memory overcommit and provides a backing store for less-used memory, preventing immediate Out-of-Memory (OOM) situations.
+
+!!! info
+
+    See [Swap](https://wiki.archlinux.org/title/Swap) for a detailed guide on swap space configuration.
 
 #### Btrfs swap file
 
@@ -667,6 +770,10 @@ Create an 8 GiB swap file within the dedicated `@swap` subvolume and append it t
 btrfs filesystem mkswapfile --size 8g --uuid clear /swap/swapfile
 echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
 ```
+
+!!! info
+
+    See [Btrfs: Swap file](https://wiki.archlinux.org/title/Btrfs#Swap_file) for more details.
 
 #### Ext4 swap file
 
@@ -678,46 +785,57 @@ mkswap -U clear --size 8G --file /swap/swapfile
 echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
 ```
 
-### Mkinitcpio
+### Configure Mkinitcpio
 
-The initial ramdisk environment (`initramfs`) must be configured to include necessary modules for the system to boot, especially for encryption or specific hardware. Review the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio), including the section on [dm-crypt hooks](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio).
+The initial ramdisk environment (`initramfs`) requires specific configuration to ensure successful system booting, especially when using LUKS encryption or specialized hardware like NVIDIA graphics cards.
 
-Open `/etc/mkinitcpio.conf` for editing:
+Open the primary configuration file to apply the necessary changes:
 
 ```sh
-nano -/ /etc/mkinitcpio.conf
+nano /etc/mkinitcpio.conf
 ```
 
-**1. LUKS encryption**
+!!! info
 
-If you use LUKS, add the `encrypt` hook to the `HOOKS` array to enable the decryption prompt during boot. Place it after `block` and before `filesystems`, for example:
+    For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio), including the section on [dm-crypt hooks](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio).
+
+#### Configure LUKS encryption
+
+If you use LUKS, integrate the `encrypt` hook into the `HOOKS` array. This hook enables the decryption prompt early in the boot sequence.
+
+Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
 
 ```
 HOOKS=(... block encrypt filesystems ...)
 ```
 
-You can update the `HOOKS` line automatically with:
+#### Configure the NVIDIA driver
 
-```sh
-sed --in-place --regexp-extended '/^HOOKS=/ s/\<(block)\>/\1 encrypt/' /etc/mkinitcpio.conf
+To properly initialize the proprietary NVIDIA driver, adjust both the `HOOKS` and `MODULES` arrays.
+
+**1. Remove the default `kms` hook (if present) from `HOOKS` array** to prevent conflicts with the proprietary driver's kernel mode setting logic.
+
+```
+HOOKS=(... [kms should not be in this list] ...)
 ```
 
-**2. NVIDIA/Kernel Mode Setting (KMS)**
+**2. Add the required driver components to the `MODULES` array**. This ensures the graphics driver loads during the early boot stage.
 
-If using NVIDIA, remove the `kms` hook to prevent conflicts with the proprietary driver's kernel mode setting.
+Include `i915` **only** if your system features a hybrid setup with an Intel iGPU.
 
-```sh
-sed --in-place --regexp-extended '/^HOOKS=/ s/\<kms\>[[:space:]]*//' /etc/mkinitcpio.conf
+```
+MODULES=(... i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
 ```
 
-**3. NVIDIA modules**
+Include the `nvidia` modules for all proprietary driver installations.
 
-Add the necessary modules to the `MODULES` array to ensure the NVIDIA driver loads early.
+```
+MODULES=(... nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
+```
 
-`/etc/mkinitcpio.conf`
-```
-MODULES=(i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm)
-```
+!!! info
+
+    See [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
 
 **Regenerate initramfs**
 
@@ -735,7 +853,11 @@ Re-run the boot installation command *inside* the chroot to ensure the bootloade
 bootctl install
 ```
 
-Enable the automatic update service for `systemd-boot` to ensure the bootloader files are updated whenever the `systemd` package is upgraded. See [systemd-boot#Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager).
+Enable the automatic update service for `systemd-boot` to ensure the bootloader files are updated whenever the `systemd` package is upgraded.
+
+!!! info
+
+    See [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
 
 ```sh
 systemctl enable systemd-boot-update.service
@@ -752,11 +874,13 @@ reboot
 
 ## Post-installation
 
-Congratulations! Your Arch Linux system should now boot. For further steps  refer to [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and [List of applications](https://wiki.archlinux.org/title/List_of_applications)
+Congratulations! Your Arch Linux system should now boot.
 
-### Install `yay` (AUR helper - optional)
+For further steps refer to [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and [List of applications](https://wiki.archlinux.org/title/List_of_applications).
 
-Install `yay`, a popular tool for installing and managing packages from the Arch User Repository (AUR). Run these commands as your regular user, not as root. See [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) and [yay](https://github.com/Jguer/yay) for more information.
+### Install `yay` AUR helper (optional)
+
+Install `yay`, a popular tool for installing and managing packages from the Arch User Repository (AUR). Run these commands as your regular user, not as root.
 
 ```sh
 sudo pacman -S --needed git base-devel
@@ -766,4 +890,8 @@ git clone https://aur.archlinux.org/yay-bin.git "${yay_temp:?}"
 rm -rf "${yay_temp:?}"
 ```
 
-After installing, follow the initial setup steps in the project's documentation: [github.com/Jguer/yay](https://github.com/Jguer/yay?tab=readme-ov-file#first-use).
+After installing, follow the initial setup steps in the project’s documentation under [First Use: Development packages upgrade](https://github.com/Jguer/yay?tab=readme-ov-file#first-use).
+
+!!! info
+
+    See [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) and [yay](https://github.com/Jguer/yay) for more information.
