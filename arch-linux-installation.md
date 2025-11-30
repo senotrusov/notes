@@ -448,9 +448,26 @@ Format the partitions with the chosen filesystems and mount them to the installa
 
 ### Root partition
 
-Choose either Btrfs with subvolumes or the traditional ext4 filesystem.
+Choose either traditional `ext4` filesystem or the `Btrfs` with subvolumes.
 
-=== "Root with `Btrfs` and subvolumes"
+=== "`ext4`"
+
+    !!! info inline end
+
+        See the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page for more information.
+
+    Ext4 is a traditional, robust, and mature filesystem.
+
+    **Format and mount:**
+
+    ```sh
+    mkfs.ext4 "${root_actual:?}"
+    mount -o noatime,commit=30 "${root_actual:?}" /mnt
+    ```
+
+    The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
+
+=== "`Btrfs`"
 
     !!! info inline end
 
@@ -483,23 +500,6 @@ Choose either Btrfs with subvolumes or the traditional ext4 filesystem.
     mount -m -o noatime,flushoncommit,subvol=/@home "${root_actual:?}" /mnt/home
     mount -m -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
     ```
-
-=== "Root with `ext4`"
-
-    !!! info inline end
-
-        See the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page for more information.
-
-    Ext4 is a traditional, robust, and mature filesystem.
-
-    **Format and mount:**
-
-    ```sh
-    mkfs.ext4 "${root_actual:?}"
-    mount -o noatime,commit=30 "${root_actual:?}" /mnt
-    ```
-
-    The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
 
 ### EFI system partition
 
@@ -760,7 +760,7 @@ Even with large amounts of RAM, swap is important because it provides a backing 
 
 Select the appropriate method based on your filesystem to create and enable an 8 GiB (example size) swap file:
 
-=== "Ext4"
+=== "`ext4`"
 
     Create an 8 GiB swap file on an Ext4 root filesystem and add it to `fstab`.
 
@@ -770,7 +770,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
     echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
     ```
 
-=== "Btrfs"
+=== "`Btrfs`"
 
     !!! info inline end
 
@@ -798,59 +798,59 @@ Open the primary configuration file to apply the necessary changes:
 nano /etc/mkinitcpio.conf
 ```
 
-#### Configure LUKS encryption
+???+ abstract "Configure LUKS encryption"
 
-!!! info inline end
+    !!! info inline end
 
-    See [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
+        See [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
 
-If you use LUKS, integrate the `encrypt` hook into the `HOOKS` array. This hook enables the decryption prompt early in the boot sequence.
+    If you use LUKS, integrate the `encrypt` hook into the `HOOKS` array. This hook enables the decryption prompt early in the boot sequence.
 
-Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
-
-```
-HOOKS=(... block encrypt filesystems ...)
-```
-
-#### Configure the NVIDIA driver
-
-!!! info inline end
-
-    See [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
-
-To ensure the proprietary NVIDIA driver initializes correctly during early boot, update both the `HOOKS` and `MODULES` arrays.
-
-**1. Remove the `kms` hook from `HOOKS`**
-
-Removing `kms` from the `HOOKS` array prevents the `initramfs` from including the `nouveau` module. This ensures the kernel cannot load the open-source driver during early boot, avoiding conflicts with the proprietary NVIDIA driver.
-
-If `kms` appears in your `HOOKS` array, remove it.
-
-```
-HOOKS=(...  # make sure kms is not included here  ...)
-```
-
-**2. Add the required NVIDIA modules to `MODULES`**
-
-These modules allow the driver to load at the earliest boot stage.
-
-Select the appropriate configuration below based on your system:
-
-=== "Standard NVIDIA"
-
-    Include the full NVIDIA module set for systems using only the proprietary driver.
+    Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
 
     ```
-    MODULES=(... nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
+    HOOKS=(... block encrypt filesystems ...)
     ```
 
-=== "Hybrid with Intel iGPU"
+???+ abstract "Configure the NVIDIA driver"
 
-    Add `i915` only on systems with an Intel integrated GPU alongside the NVIDIA GPU.
+    !!! info inline end
+
+        See [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
+
+    To ensure the proprietary NVIDIA driver initializes correctly during early boot, update both the `HOOKS` and `MODULES` arrays.
+
+    **1. Remove the `kms` hook from `HOOKS`**
+
+    Removing `kms` from the `HOOKS` array prevents the `initramfs` from including the `nouveau` module. This ensures the kernel cannot load the open-source driver during early boot, avoiding conflicts with the proprietary NVIDIA driver.
+
+    If `kms` appears in your `HOOKS` array, remove it.
 
     ```
-    MODULES=(... i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
+    HOOKS=(...  # make sure kms is not included here  ...)
     ```
+
+    **2. Add the required NVIDIA modules to `MODULES`**
+
+    These modules allow the driver to load at the earliest boot stage.
+
+    Select the appropriate configuration below based on your system:
+
+    === "Standard NVIDIA"
+
+        Include the full NVIDIA module set for systems using only the proprietary driver.
+
+        ```
+        MODULES=(... nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
+        ```
+
+    === "Hybrid with Intel iGPU"
+
+        Add `i915` only on systems with an Intel integrated GPU alongside the NVIDIA GPU.
+
+        ```
+        MODULES=(... i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm ...)
+        ```
 
 #### Regenerate initramfs
 
