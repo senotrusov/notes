@@ -228,7 +228,7 @@ timedatectl
 
 The time zone set here only affects the live environment and will be configured for the installed system later.
 
-## Assign variables for disk identification and prepare for partitioning
+## Assign variables for disk identification
 
 Identify the target disk by listing available block devices and assign the device path and partition names to shell variables.
 
@@ -577,7 +577,6 @@ genfstab -U /mnt >> /mnt/etc/fstab
 Review the generated file and update it as needed, such as removing Btrfs `subvolid=` entries and relying on `subvol=` path-based mounting for better snapshot flexibility.
 
 ```sh
-cat /mnt/etc/fstab
 nano /mnt/etc/fstab
 ```
 
@@ -605,7 +604,7 @@ Set `arch.conf` as the default boot entry in the global bootloader configuration
 echo "default arch.conf" >>/mnt/boot/loader/loader.conf
 ```
 
-#### Create boot entry `arch.conf`
+#### Create `arch.conf` boot entry
 
 Define the boot process for the Arch Linux kernel.
 
@@ -770,7 +769,7 @@ Enable `sudo` access for the `wheel` group.
 echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 ```
 
-## Swap space setup
+### Swap space setup
 
 !!! info inline end
 
@@ -920,7 +919,7 @@ Congratulations! Your Arch Linux system should now boot.
 
 For further steps refer to [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and [List of applications](https://wiki.archlinux.org/title/List_of_applications).
 
-### Install `yay` AUR helper (optional)
+### Install AUR helper (optional)
 
 !!! info inline end
 
@@ -936,4 +935,4 @@ git clone https://aur.archlinux.org/yay-bin.git "${yay_temp:?}"
 rm -rf "${yay_temp:?}"
 ```
 
-After installing, follow the initial setup steps in the project’s documentation under [First Use: Development packages upgrade](https://github.com/Jguer/yay?tab=readme-ov-file#first-use).
+After installing, refer to the [First Use](https://github.com/Jguer/yay?tab=readme-ov-file#first-use) section of yay's documentation. Review the instructions to decide if you wish to configure `yay` to automatically check for updates to development (`-git`) packages.
