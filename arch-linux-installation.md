@@ -136,17 +136,12 @@ The USB drive can be safely removed once the live environment loads to a shell p
 
 ## Improve console readability
 
-Change the console font for better legibility, which is especially useful on high-resolution displays. Select a font size from 24, 28, or 32:
+Change the console font for better legibility, which is especially useful on high-resolution displays.
 
 ```sh
-# Size 24
-setfont ter-124b
-
-# Size 28
-setfont ter-128b
-
-# Size 32
-setfont ter-132b
+setfont ter-124b  # 24-pixel font
+setfont ter-128b  # 28-pixel font
+setfont ter-132b  # 32-pixel font
 ```
 
 !!! info
