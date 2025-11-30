@@ -116,13 +116,13 @@ Use `dd` to write the ISO to the USB device. This operation is permanent and des
 sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
 ```
 
-### Verify the USB copy (optional)
+???+ abstract "Verify the USB copy (optional)"
 
-To ensure the data was written correctly, compare the written data byte-by-byte with the original ISO file. Remove and reinsert the USB drive first to clear any potential cache.
+    To ensure the data was written correctly, compare the written data byte-by-byte with the original ISO file. Remove and reinsert the USB drive first to clear any potential cache.
 
-```sh
-sudo cmp -n "$(stat -c %s archlinux-x86_64.iso)" archlinux-x86_64.iso "${flash:?}" && echo OK || echo ERROR
-```
+    ```sh
+    sudo cmp -n "$(stat -c %s archlinux-x86_64.iso)" archlinux-x86_64.iso "${flash:?}" && echo OK || echo ERROR
+    ```
 
 ## Boot from USB flash drive
 
@@ -148,7 +148,7 @@ setfont ter-128b  # 28-pixel font
 setfont ter-132b  # 32-pixel font
 ```
 
-## Verify network connectivity
+## Network checks and optional SSH connection
 
 A stable network connection is mandatory for the installation. Test connectivity to ensure the live environment can reach the internet.
 
@@ -162,45 +162,45 @@ Wired connections typically work automatically.
 
     For wireless setup or troubleshooting, consult the [Installation guide#Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and [network configuration](https://wiki.archlinux.org/title/Network_configuration).
 
-## Connect to the live environment by SSH (optional)
+???+ abstract "Connect to the live environment by SSH (optional)"
 
-!!! info inline end
+    !!! info inline end
 
-    Refer to [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) for more information.
+        Refer to [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) for more information.
 
-Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research.
+    Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research.
 
-### Set a temporary root password
+    ### Set a temporary root password
 
-Set a temporary root password for the live environment. This password allows SSH login and will not persist after the installation.
-
-```sh
-passwd
-```
-
-### Establish an SSH session
-
-=== "Connect with mDNS"
-
-    If your client machine supports mDNS (Multicast DNS), connect using the default hostname `archiso.local`.
+    Set a temporary root password for the live environment. This password allows SSH login and will not persist after the installation.
 
     ```sh
-    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@archiso.local
+    passwd
     ```
 
-=== "Connect with an IP address"
+    ### Establish an SSH session
 
-    If mDNS fails, find the live environment's IP address on the network.
+    === "Connect with mDNS"
 
-    ```sh
-    ip addr
-    ```
+        If your client machine supports mDNS (Multicast DNS), connect using the default hostname `archiso.local`.
 
-    Use the assigned IP address to connect from your client machine, replacing `IP_ADDRESS`:
+        ```sh
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@archiso.local
+        ```
 
-    ```sh
-    ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
-    ```
+    === "Connect with an IP address"
+
+        If mDNS fails, find the live environment's IP address on the network.
+
+        ```sh
+        ip addr
+        ```
+
+        Use the assigned IP address to connect from your client machine, replacing `IP_ADDRESS`:
+
+        ```sh
+        ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
+        ```
 
 ## Perform basic system checks
 
@@ -284,7 +284,7 @@ fdisk -l "${target:?}"
 
 Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
 
-=== "Using `smartctl`"
+=== "With `smartctl`"
 
     Examine the `Supported LBA Sizes` list at the end of the output.
 
@@ -292,7 +292,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
     smartctl -c "${target:?}"
     ```
 
-=== "Using `nvme`"
+=== "With `nvme`"
 
     Check the `LBA Format` list at the end of the output.
 
@@ -302,7 +302,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
 
 !!! danger
 
-    The following operation is destructive and erases all data.
+    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
 
 If a 4K format is supported but not active, reformat the drive to the optimal LBA Format ID.
 
@@ -334,7 +334,7 @@ Launch `parted` for interactive partitioning:
 parted "${target:?}"
 ```
 
-### Create a GPT partition table
+**Create a GPT partition table**
 
 Create a GPT (GUID Partition Table), the modern standard required for UEFI.
 
@@ -342,7 +342,7 @@ Create a GPT (GUID Partition Table), the modern standard required for UEFI.
 mklabel gpt
 ```
 
-### Set the unit to MiB for optimal alignment
+**Set the unit to MiB for optimal alignment**
 
 Set the unit to mebibytes (`MiB`) to ensure partitions are aligned to mebibyte boundaries for optimal performance.
 
@@ -350,7 +350,7 @@ Set the unit to mebibytes (`MiB`) to ensure partitions are aligned to mebibyte b
 unit MiB
 ```
 
-### Create the EFI system partition (ESP)
+**Create the EFI system partition (ESP)**
 
 !!! info inline end
 
@@ -362,7 +362,7 @@ Create a 1 GiB (1024 MiB) FAT32 partition starting at 4 MiB.
 mkpart efi fat32 4 1028
 ```
 
-### Set the ESP flag
+**Set the ESP flag**
 
 Mark the first partition as the EFI System Partition, which is necessary for UEFI bootloaders.
 
@@ -370,7 +370,7 @@ Mark the first partition as the EFI System Partition, which is necessary for UEF
 set 1 esp on
 ```
 
-### Create the root partition
+**Create the root partition**
 
 Create the root partition using all remaining disk space, starting immediately after the ESP.
 
@@ -378,7 +378,7 @@ Create the root partition using all remaining disk space, starting immediately a
 mkpart root 1028 100%
 ```
 
-### Check partition alignment
+**Check partition alignment**
 
 Verify optimal alignment for partitions 1 and 2, which is essential for SSD performance.
 
@@ -387,7 +387,7 @@ align-check opt 1
 align-check opt 2
 ```
 
-### Review and exit
+**Review and exit**
 
 Review the partition table and exit `parted`.
 
@@ -398,41 +398,45 @@ quit
 
 ## Set up LUKS encryption (optional)
 
-!!! info inline end
+If you choose to encrypt the root partition (`$root_physical`) with LUKS2, the decrypted device will become `$root_actual`. If you skip encryption, `$root_actual` will simply remain the same as `$root_physical`.
 
-    For details, see [dm-crypt/Encrypting an entire system](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system) and [Dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
+???+ abstract "Steps to encrypt the root partition"
 
-Encrypt the root partition (`$root_physical`) with LUKS2. If you skip this step, the `$root_actual` variable remains identical to `$root_physical`.
+    ### Format the root partition with LUKS2
 
-### Format the root partition with LUKS2
+    Format the root partition (`$root_physical`) using LUKS2. The `--sector-size 4096` option aligns encryption with 4K physical sectors, which improves performance on modern drives.
 
-Format the root partition (`$root_physical`) with LUKS2. The `--sector-size 4096` option aligns encryption with 4K physical sectors for better performance on modern drives.
+    When prompted, choose a strong passphrase and store it safely. Losing the passphrase means losing access to all encrypted data.
 
-When prompted, use a strong passphrase and store it securely. You cannot recover the encrypted data if you lose the passphrase.
+    ```sh
+    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --sector-size 4096 "${root_physical:?}"
+    ```
 
-```sh
-cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --sector-size 4096 "${root_physical:?}"
-```
+    ### Open the LUKS container and set persistent options
 
-### Open the LUKS container and set persistent options
+    !!! info inline end
 
-!!! info inline end
+        For details on discard support and performance tuning, see  
+        [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and  
+        [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
 
-    For performance and TRIM options, see [Dm-crypt/Specialties#Discard/TRIM support for solid state drives (SSD)](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and [Dm-crypt/Specialties#Disable workqueue for increased solid state drive (SSD) performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
+    Open the encrypted partition and map it as `/dev/mapper/luks-root`. The performance and discard options enabled here will apply automatically for future unlocks.
 
-Open the encrypted partition and map it to `/dev/mapper/luks-root`. The performance and discard options enabled here will persist across future unlocks.
+    ```sh
+    cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
+    ```
 
-```sh
-cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
-```
+    ### Set the `root_actual` variable
 
-### Update `root_actual` variable
+    Update the variable so that subsequent filesystem operations target the decrypted container.
 
-Assign the variable to point to the decrypted LUKS container for subsequent filesystem operations.
+    ```sh
+    root_actual="/dev/mapper/luks-root"
+    ```
 
-```sh
-root_actual="/dev/mapper/luks-root"
-```
+    !!! tip
+
+        For more information, see the Arch Wiki page on [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
 
 ## Format and mount file systems
 
@@ -446,56 +450,56 @@ Format the partitions with the chosen filesystems and mount them to the installa
 
 Choose either Btrfs with subvolumes or the traditional ext4 filesystem.
 
-#### Root with Btrfs and subvolumes
+=== "Root with `Btrfs` and subvolumes"
 
-!!! info inline end
+    !!! info inline end
 
-    See [Btrfs](https://wiki.archlinux.org/title/Btrfs) and [Btrfs#Getting started](https://wiki.archlinux.org/title/Btrfs#Getting_started) for more information on Btrfs and subvolume setup.
+        See [Btrfs](https://wiki.archlinux.org/title/Btrfs) and [Btrfs#Getting started](https://wiki.archlinux.org/title/Btrfs#Getting_started) for more information on Btrfs and subvolume setup.
 
-Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting.
+    Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting.
 
-**Format the partition:**
+    **Format the partition:**
 
-```sh
-mkfs.btrfs "${root_actual:?}"
-```
+    ```sh
+    mkfs.btrfs "${root_actual:?}"
+    ```
 
-**Create and mount subvolumes:**
+    **Create and mount subvolumes:**
 
-Temporarily mount the top-level volume, create the standard subvolumes (`@` for root, `@home`, `@swap`), then unmount.
+    Temporarily mount the top-level volume, create the standard subvolumes (`@` for root, `@home`, `@swap`), then unmount.
 
-```sh
-mount "${root_actual:?}" /mnt
-btrfs subvolume create /mnt/@
-btrfs subvolume create /mnt/@home
-btrfs subvolume create /mnt/@swap
-umount /mnt
-```
+    ```sh
+    mount "${root_actual:?}" /mnt
+    btrfs subvolume create /mnt/@
+    btrfs subvolume create /mnt/@home
+    btrfs subvolume create /mnt/@swap
+    umount /mnt
+    ```
 
-Mount the subvolumes to their final locations. The `noatime` option improves performance by disabling file access time updates, and `flushoncommit` prioritizes data integrity.
+    Mount the subvolumes to their final locations. The `noatime` option improves performance by disabling file access time updates, and `flushoncommit` prioritizes data integrity.
 
-```sh
-mount -o noatime,flushoncommit,subvol=/@ "${root_actual:?}" /mnt
-mount -m -o noatime,flushoncommit,subvol=/@home "${root_actual:?}" /mnt/home
-mount -m -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
-```
+    ```sh
+    mount -o noatime,flushoncommit,subvol=/@ "${root_actual:?}" /mnt
+    mount -m -o noatime,flushoncommit,subvol=/@home "${root_actual:?}" /mnt/home
+    mount -m -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
+    ```
 
-#### Root with ext4
+=== "Root with `ext4`"
 
-!!! info inline end
+    !!! info inline end
 
-    See the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page for more information.
+        See the [ext4](https://wiki.archlinux.org/title/ext4) Arch Wiki page for more information.
 
-Ext4 is a traditional, robust, and mature filesystem.
+    Ext4 is a traditional, robust, and mature filesystem.
 
-**Format and mount:**
+    **Format and mount:**
 
-```sh
-mkfs.ext4 "${root_actual:?}"
-mount -o noatime,commit=30 "${root_actual:?}" /mnt
-```
+    ```sh
+    mkfs.ext4 "${root_actual:?}"
+    mount -o noatime,commit=30 "${root_actual:?}" /mnt
+    ```
 
-The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
+    The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
 
 ### EFI system partition
 
@@ -609,27 +613,27 @@ root_device_uuid="$(blkid -s UUID -o value "${root_physical:?}")"
 
 Define the kernel arguments, including the decryption device (`cryptdevice`) if LUKS is used, or simply the root filesystem UUID otherwise.
 
-*If using LUKS encryption (Option A):*
+=== "If using LUKS encryption"
 
-```sh
-kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
-```
+    ```sh
+    kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
+    ```
 
-*If not using LUKS (Option B):*
+=== "If not using LUKS"
 
-```sh
-kernel_args="root=UUID=${root_device_uuid}"
-```
+    ```sh
+    kernel_args="root=UUID=${root_device_uuid}"
+    ```
 
-**3. Append Btrfs subvolume flag (if Btrfs is used)**
+???+ abstract "2.1. Append `Btrfs` subvolume flag (if `Btrfs` is used)"
 
-If you used the Btrfs subvolume setup, append the flag specifying the root subvolume.
+    If you used the Btrfs subvolume setup, append the flag specifying the root subvolume.
 
-```sh
-kernel_args="${kernel_args:?} rootflags=subvol=/@"
-```
+    ```sh
+    kernel_args="${kernel_args:?} rootflags=subvol=/@"
+    ```
 
-**4. Create the configuration file**
+**3. Create the configuration file**
 
 !!! info inline end
 
