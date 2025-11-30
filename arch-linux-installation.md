@@ -28,11 +28,11 @@ While I typically configure my desktop environment and dotfiles separately, this
 
 This document is not intended to replace the [official Arch Wiki Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most comprehensive and authoritative reference. Instead, it offers a personal and opinionated workflow, a set of practical notes meant to complement the Arch Wiki. Use both together to make informed decisions and adapt the process to your system.
 
+This guide is provided under the terms of the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
+
 !!! danger
 
     This guide includes steps that will erase all data on your disk. Adjust the disk preparation, partitioning, and formatting steps if this is not your intention.
-
-This guide is provided under the terms of the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
 ## Recommended setup method
 
@@ -110,7 +110,7 @@ Set the device path variable, replacing `sdX` with your USB drive's actual devic
 flash="/dev/sdX"
 ```
 
-Use `dd` to write the ISO to the USB device. This operation is permanent and destructive.
+Use `dd` to write the ISO to the USB device.
 
 ```sh
 sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
@@ -264,7 +264,7 @@ Use the appropriate tab for your disk type.
     root_actual="${root_physical:?}"
     ```
 
-*Note: The `root_actual` variable will be updated later if LUKS encryption is applied.*
+*Note: The `root_actual` variable is initially set to the physical root partition and will be updated later if LUKS encryption is applied.*
 
 ## Check disk settings
 
@@ -396,47 +396,55 @@ print
 quit
 ```
 
-## Set up LUKS encryption (optional)
+## Configure disk encryption
 
-If you choose to encrypt the root partition (`$root_physical`) with LUKS2, the decrypted device will become `$root_actual`. If you skip encryption, `$root_actual` will simply remain the same as `$root_physical`.
+Choose whether to encrypt the root partition with LUKS or proceed without encryption.
 
-???+ abstract "Steps to encrypt the root partition"
+!!! abstract "Configure disk encryption"
 
-    ### Format the root partition with LUKS2
+    === "Use LUKS encryption"
 
-    Format the root partition (`$root_physical`) using LUKS2. The `--sector-size 4096` option aligns encryption with 4K physical sectors, which improves performance on modern drives.
+        !!! tip inline end
 
-    When prompted, choose a strong passphrase and store it safely. Losing the passphrase means losing access to all encrypted data.
+            For more information, see the Arch Wiki page on [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
 
-    ```sh
-    cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --sector-size 4096 "${root_physical:?}"
-    ```
+        If you choose to encrypt the root partition (`$root_physical`) with LUKS2, the decrypted device becomes `$root_actual`.
 
-    ### Open the LUKS container and set persistent options
+        ### Format the root partition with LUKS2
 
-    !!! info inline end
+        Format the root partition (`$root_physical`) using LUKS2. The `--sector-size 4096` option aligns encryption with 4K physical sectors, which improves performance on modern drives.
 
-        For details on discard support and performance tuning, see  
-        [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and  
-        [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
+        When prompted, choose a strong passphrase and store it safely. Losing the passphrase means losing access to all encrypted data.
 
-    Open the encrypted partition and map it as `/dev/mapper/luks-root`. The performance and discard options enabled here will apply automatically for future unlocks.
+        ```sh
+        cryptsetup luksFormat --batch-mode --verify-passphrase --type luks2 --sector-size 4096 "${root_physical:?}"
+        ```
 
-    ```sh
-    cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
-    ```
+        ### Open the LUKS container and set persistent options
 
-    ### Set the `root_actual` variable
+        !!! info inline end
 
-    Update the variable so that subsequent filesystem operations target the decrypted container.
+            For details on discard support and performance tuning, see  
+            [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and  
+            [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
 
-    ```sh
-    root_actual="/dev/mapper/luks-root"
-    ```
+        Open the encrypted partition and map it as `/dev/mapper/luks-root`. The performance and discard options enabled here apply automatically for future unlocks.
 
-    !!! tip
+        ```sh
+        cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
+        ```
 
-        For more information, see the Arch Wiki page on [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
+        ### Set the `root_actual` variable
+
+        Update the variable so that subsequent filesystem operations target the decrypted container.
+
+        ```sh
+        root_actual="/dev/mapper/luks-root"
+        ```
+
+    === "Do not use LUKS encryption"
+
+        No action is required for this step when not using LUKS encryption. The `$root_actual` variable, which represents the device path for the root filesystem, retains its initial value of `$root_physical`.
 
 ## Format and mount file systems
 
@@ -448,9 +456,9 @@ Format the partitions with the chosen filesystems and mount them to the installa
 
 ### Root partition
 
-Choose either traditional `ext4` filesystem or the `Btrfs` with subvolumes.
+Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
-=== "`ext4`"
+=== "Ext4 filesystem"
 
     !!! info inline end
 
@@ -467,7 +475,7 @@ Choose either traditional `ext4` filesystem or the `Btrfs` with subvolumes.
 
     The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
 
-=== "`Btrfs`"
+=== "Btrfs filesystem"
 
     !!! info inline end
 
@@ -585,7 +593,7 @@ Install the `systemd-boot` boot manager to the EFI System Partition (ESP) and cr
 bootctl --esp-path=/mnt/boot install
 ```
 
-**Configure `loader.conf`**
+#### Configure `loader.conf`
 
 !!! info inline end
 
@@ -597,7 +605,7 @@ Set `arch.conf` as the default boot entry in the global bootloader configuration
 echo "default arch.conf" >>/mnt/boot/loader/loader.conf
 ```
 
-**Create boot entry `arch.conf`**
+#### Create boot entry `arch.conf`
 
 Define the boot process for the Arch Linux kernel.
 
@@ -611,21 +619,33 @@ root_device_uuid="$(blkid -s UUID -o value "${root_physical:?}")"
 
 **2. Define kernel arguments**
 
-Define the kernel arguments, including the decryption device (`cryptdevice`) if LUKS is used, or simply the root filesystem UUID otherwise.
+Selecting the right kernel parameters ensures that your system can locate and mount the root filesystem during boot. The next step tailors these parameters to your encryption method.
 
-=== "If using LUKS encryption"
+!!! abstract "Choose the appropriate kernel arguments for your encryption setup."
 
-    ```sh
-    kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
-    ```
+    === "Use LUKS encryption"
 
-=== "If not using LUKS"
+        Include the decryption device (`cryptdevice`) and set the root filesystem to the decrypted path (`/dev/mapper/luks-root`).
 
-    ```sh
-    kernel_args="root=UUID=${root_device_uuid}"
-    ```
+        ```sh
+        kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
+        ```
 
-???+ abstract "2.1. Append `Btrfs` subvolume flag (if `Btrfs` is used)"
+    === "Do not use LUKS encryption"
+
+        Set the root filesystem to the UUID of the physical root partition.
+
+        ```sh
+        kernel_args="root=UUID=${root_device_uuid}"
+        ```
+
+Before creating the final boot entry, make sure the kernel arguments also match your filesystem type. Some filesystems require extra flags so the kernel knows exactly where your root data is stored.
+
+=== "Ext4 filesystem"
+
+    No additional flags are required because Ext4 uses a straightforward layout that does not involve subvolumes or special mount instructions.
+
+=== "Btrfs filesystem"
 
     If you used the Btrfs subvolume setup, append the flag specifying the root subvolume.
 
@@ -639,7 +659,7 @@ Define the kernel arguments, including the decryption device (`cryptdevice`) if 
 
     Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
 
-The microcode files (`intel-ucode.img` and `amd-ucode.img`) must be listed before the main `initramfs-linux.img` so they are loaded first. **Ensure these microcode files are copied to `/mnt/boot` by `pacstrap` (they are dependencies of the `intel-ucode` and `amd-ucode` packages).**
+The microcode files (`intel-ucode.img` and `amd-ucode.img`) must be listed before the main `initramfs-linux.img` so they are loaded first. Ensure these microcode files are copied to <nobr>`/mnt/boot`</nobr> by `pacstrap` (they are dependencies of the `intel-ucode` and `amd-ucode` packages).
 
 ```sh
 tee /mnt/boot/loader/entries/arch.conf <<EOF
@@ -760,7 +780,7 @@ Even with large amounts of RAM, swap is important because it provides a backing 
 
 Select the appropriate method based on your filesystem to create and enable an 8 GiB (example size) swap file:
 
-=== "`ext4`"
+=== "Ext4 filesystem"
 
     Create an 8 GiB swap file on an Ext4 root filesystem and add it to `fstab`.
 
@@ -770,7 +790,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
     echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
     ```
 
-=== "`Btrfs`"
+=== "Btrfs filesystem"
 
     !!! info inline end
 
@@ -782,7 +802,6 @@ Select the appropriate method based on your filesystem to create and enable an 8
     btrfs filesystem mkswapfile --size 8g --uuid clear /swap/swapfile
     echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
     ```
-
 
 ### Configure Mkinitcpio
 
@@ -798,19 +817,27 @@ Open the primary configuration file to apply the necessary changes:
 nano /etc/mkinitcpio.conf
 ```
 
-???+ abstract "Configure LUKS encryption"
+#### Apply boot configuration changes
 
-    !!! info inline end
+!!! abstract "Configure disk encryption"
 
-        See [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
+    === "Use LUKS encryption"
 
-    If you use LUKS, integrate the `encrypt` hook into the `HOOKS` array. This hook enables the decryption prompt early in the boot sequence.
+        !!! info inline end
 
-    Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
+            See [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
 
-    ```
-    HOOKS=(... block encrypt filesystems ...)
-    ```
+        Integrate the `encrypt` hook into the `HOOKS` array. This hook enables the decryption prompt early in the boot sequence.
+
+        Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
+
+        ```
+        HOOKS=(... block encrypt filesystems ...)
+        ```
+
+    === "Do not use LUKS encryption"
+
+        No action is required to the `HOOKS` array for the boot sequence.
 
 ???+ abstract "Configure the NVIDIA driver"
 
