@@ -541,22 +541,110 @@ mount | grep /mnt
 
     See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
 
-Install the base system and all necessary packages using `pacstrap`. This includes the kernel, firmware, boot manager tools, network manager, and the chosen desktop environment (GNOME) and drivers (NVIDIA).
+Select your CPU architecture below and run the corresponding code block in your shell to initialize the `packages` array. This array includes the kernel, firmware, boot manager tools, essential utilities, and the correct CPU microcode package.
+
+### Define the base system
+
+=== "Universal (Intel and AMD)"
+
+    ```sh
+    packages=(
+      amd-ucode
+      base
+      efibootmgr
+      intel-ucode
+      linux
+      linux-firmware
+      man-db
+      man-pages
+      nano
+      sudo
+      )
+    ```
+
+=== "Intel only"
+
+    ```sh
+    packages=(
+      base
+      efibootmgr
+      intel-ucode
+      linux
+      linux-firmware
+      man-db
+      man-pages
+      nano
+      sudo
+      )
+    ```
+
+=== "AMD only"
+
+    ```sh
+    packages=(
+      amd-ucode
+      base
+      efibootmgr
+      linux
+      linux-firmware
+      man-db
+      man-pages
+      nano
+      sudo
+      )
+    ```
+
+### Add optional packages
+
+Append optional packages, such as file system utilities, desktop environment components, or drivers, to the `packages` array.
+
+???+ abstract "Btrfs file system utilities"
+
+    ```sh
+    packages+=(
+      btrfs-progs
+      compsize
+    )
+    ```
+
+???+ abstract "NVIDIA open kernel driver"
+
+    ```sh
+    packages+=(
+      nvidia-open
+    )
+    ```
+
+???+ abstract "GNOME desktop environment and NetworkManager"
+
+    ```sh
+    packages+=(
+      gnome
+      gnome-terminal
+      networkmanager
+    )
+    ```
+
+???+ abstract "Web browser and essential desktop fonts"
+
+    ```sh
+    packages+=(
+      firefox
+      noto-fonts
+      noto-fonts-cjk
+      noto-fonts-emoji
+    )
+    ```
+  
+### Run package installation
+
+After defining the base system and appending optional packages, run the following command to install all selected packages onto the mounted system:
 
 ```sh
-pacstrap -K /mnt \
-  base linux linux-firmware efibootmgr \
-  intel-ucode \
-  amd-ucode \
-  nvidia-open \
-  btrfs-progs compsize \
-  networkmanager \
-  sudo man-db man-pages micro nano \
-  gnome gnome-terminal \
-  firefox noto-fonts noto-fonts-cjk noto-fonts-emoji
+pacstrap -K /mnt "${packages[@]:?}"
 ```
 
-The `-K` flag ensures a proper `pacman` keyring setup in the new system. Adjust the package list as needed (e.g., remove `btrfs-progs`, `gnome`, or `nvidia-open` if not required).
+The `-K` flag ensures a proper `pacman` keyring setup in the new system.
 
 ## Patch the system in `/mnt` before chroot
 
@@ -658,18 +746,48 @@ Before creating the final boot entry, make sure the kernel arguments also match 
 
     Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
 
-The microcode files (`intel-ucode.img` and `amd-ucode.img`) must be listed before the main `initramfs-linux.img` so they are loaded first. Ensure these microcode files are copied to <nobr>`/mnt/boot`</nobr> by `pacstrap` (they are dependencies of the `intel-ucode` and `amd-ucode` packages).
+The microcode files (`intel-ucode.img` and `amd-ucode.img`) must appear before the main `initramfs-linux.img` in the configuration file to ensure they load first. The command below uses `tee` to create the `arch.conf` loader entry that references the appropriate microcode file or files, depending on the CPU architecture you select.
 
-```sh
-tee /mnt/boot/loader/entries/arch.conf <<EOF
-title   Arch Linux
-linux   /vmlinuz-linux
-initrd  /intel-ucode.img
-initrd  /amd-ucode.img
-initrd  /initramfs-linux.img
-options ${kernel_args:?} rw
-EOF
-```
+Make sure the required microcode files were copied to `/mnt/boot`. They are installed by `pacstrap` during the [Install essential packages](#install-essential-packages) step, where you select your CPU architecture from the corresponding tab.
+
+In this step, you again choose one of the architecture tabs. Select the same architecture as before so that the correct microcode images installed earlier are used in your boot loader configuration.
+
+=== "Universal (Intel and AMD)"
+
+    ```sh
+    tee /mnt/boot/loader/entries/arch.conf <<EOF
+    title   Arch Linux
+    linux   /vmlinuz-linux
+    initrd  /intel-ucode.img
+    initrd  /amd-ucode.img
+    initrd  /initramfs-linux.img
+    options ${kernel_args:?} rw
+    EOF
+    ```
+
+=== "Intel only"
+
+    ```sh
+    tee /mnt/boot/loader/entries/arch.conf <<EOF
+    title   Arch Linux
+    linux   /vmlinuz-linux
+    initrd  /intel-ucode.img
+    initrd  /initramfs-linux.img
+    options ${kernel_args:?} rw
+    EOF
+    ```
+
+=== "AMD only"
+
+    ```sh
+    tee /mnt/boot/loader/entries/arch.conf <<EOF
+    title   Arch Linux
+    linux   /vmlinuz-linux
+    initrd  /amd-ucode.img
+    initrd  /initramfs-linux.img
+    options ${kernel_args:?} rw
+    EOF
+    ```
 
 ## Chroot into the new system and configure
 
