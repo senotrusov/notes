@@ -116,7 +116,7 @@ Use `dd` to write the ISO to the USB device.
 sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
 ```
 
-???+ abstract "Verify the USB copy (optional)"
+???+ example "Verify the USB copy (optional)"
 
     To ensure the data was written correctly, compare the written data byte-by-byte with the original ISO file. Remove and reinsert the USB drive first to clear any potential cache.
 
@@ -162,7 +162,7 @@ Wired connections typically work automatically.
 
     For wireless setup or troubleshooting, see the [Installation guide: Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) guide.
 
-???+ abstract "Connect to the live environment by SSH (optional)"
+???+ example "Connect to the live environment by SSH (optional)"
 
     !!! info inline end
 
@@ -598,7 +598,7 @@ Select your CPU architecture below and run the corresponding code block in your 
 
 Append optional packages, such as file system utilities, desktop environment components, or drivers, to the `packages` array.
 
-???+ abstract "Btrfs file system utilities"
+???+ example "Btrfs file system utilities"
 
     ```sh
     packages+=(
@@ -607,7 +607,7 @@ Append optional packages, such as file system utilities, desktop environment com
     )
     ```
 
-???+ abstract "NVIDIA open kernel driver"
+???+ example "NVIDIA open kernel driver"
 
     ```sh
     packages+=(
@@ -615,7 +615,7 @@ Append optional packages, such as file system utilities, desktop environment com
     )
     ```
 
-???+ abstract "GNOME desktop environment and NetworkManager"
+???+ example "GNOME desktop environment and NetworkManager"
 
     ```sh
     packages+=(
@@ -627,7 +627,7 @@ Append optional packages, such as file system utilities, desktop environment com
 
     NetworkManager provides a unified way to manage network connections and integrates well with the GNOME desktop environment.
 
-???+ abstract "Web browser and essential desktop fonts"
+???+ example "Web browser and essential desktop fonts"
 
     ```sh
     packages+=(
@@ -728,23 +728,21 @@ root_device_uuid="$(blkid -s UUID -o value "${root_physical:?}")"
 
 Selecting the right kernel parameters ensures that your system can locate and mount the root filesystem during boot. The next step tailors these parameters to your encryption method.
 
-!!! abstract "Choose the appropriate kernel arguments for your encryption setup."
+=== "Use LUKS encryption"
 
-    === "Use LUKS encryption"
+    Include the decryption device (`cryptdevice`) and set the root filesystem to the decrypted path (`/dev/mapper/luks-root`).
 
-        Include the decryption device (`cryptdevice`) and set the root filesystem to the decrypted path (`/dev/mapper/luks-root`).
+    ```sh
+    kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
+    ```
 
-        ```sh
-        kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
-        ```
+=== "Do not use LUKS encryption"
 
-    === "Do not use LUKS encryption"
+    Set the root filesystem to the UUID of the physical root partition.
 
-        Set the root filesystem to the UUID of the physical root partition.
-
-        ```sh
-        kernel_args="root=UUID=${root_device_uuid}"
-        ```
+    ```sh
+    kernel_args="root=UUID=${root_device_uuid}"
+    ```
 
 Before creating the final boot entry, make sure the kernel arguments also match your filesystem type. Some filesystems require extra flags so the kernel knows exactly where your root data is stored.
 
@@ -862,7 +860,7 @@ echo myhostname >/etc/hostname
 
 ### Enable services that you may have optionally installed
 
-???+ abstract "GNOME desktop environment and NetworkManager"
+???+ example "GNOME desktop environment and NetworkManager"
 
     #### Enable the GNOME display manager (GDM)
 
@@ -992,7 +990,7 @@ nano /etc/mkinitcpio.conf
 
         No changes are required.
 
-???+ abstract "Configure the NVIDIA driver"
+???+ example "Configure the NVIDIA driver"
 
     !!! info inline end
 
