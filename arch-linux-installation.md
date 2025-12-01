@@ -972,7 +972,7 @@ nano /etc/mkinitcpio.conf
 
         Integrate the `encrypt` hook into the `HOOKS` array. This hook enables the system to prompt for decryption during the early boot stage.
 
-        === "Automatic configuration using sed"
+        === "Apply changes automatically"
 
             Run the command below and review its output. Confirm that `encrypt` appears after the `block` hook and before the `filesystems` hook in the `HOOKS=` line.
 
@@ -980,7 +980,7 @@ nano /etc/mkinitcpio.conf
             sed -ri '/^HOOKS=/ { /\bencrypt\b/! s/\bblock\b/& encrypt/; }' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
             ```
 
-        === "Manual configuration"
+        === "Edit the file directly"
 
             Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
 
@@ -990,7 +990,7 @@ nano /etc/mkinitcpio.conf
 
     === "Do not use LUKS encryption"
 
-        No changes to the `HOOKS` array are required.
+        No changes are required.
 
 ???+ abstract "Configure the NVIDIA driver"
 
@@ -1004,7 +1004,7 @@ nano /etc/mkinitcpio.conf
 
     Removing `kms` from the `HOOKS` array prevents the inclusion of the `nouveau` module in the initramfs, ensuring the kernel cannot load the open-source driver early in the boot process and avoiding conflicts with the proprietary NVIDIA driver.
 
-    === "Automatic configuration using sed"
+    === "Apply changes automatically"
 
         Run the command below and review its output. Confirm that `kms` no longer appears in the `HOOKS=` line.
 
@@ -1012,12 +1012,12 @@ nano /etc/mkinitcpio.conf
         sed -ri '/^HOOKS=/ s/\bkms\b\s*//' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
         ```
 
-    === "Manual configuration"
+    === "Edit the file directly"
 
         If `kms` appears in your `HOOKS` array, remove it.
 
         ```
-        HOOKS=(...  Make sure kms is not included here!  ...)
+        HOOKS=(...) # Make sure "kms" is not included!
         ```
 
     **2. Add the required NVIDIA modules to `MODULES`**
@@ -1030,7 +1030,7 @@ nano /etc/mkinitcpio.conf
 
         Systems using only an NVIDIA GPU must load the full proprietary module set.
 
-        === "Automatic configuration using sed"
+        === "Apply changes automatically"
 
             Run the command below and review its output. Confirm that the `MODULES=` line includes the following modules: `nvidia nvidia_modeset nvidia_uvm nvidia_drm`
 
@@ -1038,7 +1038,7 @@ nano /etc/mkinitcpio.conf
             sed -ri '/^MODULES=/ { /\bnvidia\b/! s/\(/& nvidia nvidia_modeset nvidia_uvm nvidia_drm /; }' /etc/mkinitcpio.conf && grep "^MODULES=" /etc/mkinitcpio.conf
             ```
 
-        === "Manual configuration"
+        === "Edit the file directly"
 
             Add the following kernel modules to the `MODULES` array:
 
@@ -1050,7 +1050,7 @@ nano /etc/mkinitcpio.conf
 
         Systems using an NVIDIA GPU alongside an Intel integrated GPU (hybrid/Optimus) must also include the Intel `i915` module.
 
-        === "Automatic configuration using sed"
+        === "Apply changes automatically"
 
             Run the command below and review its output. Confirm that the `MODULES=` line includes the following modules: `i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm`
 
@@ -1058,7 +1058,7 @@ nano /etc/mkinitcpio.conf
             sed -ri '/^MODULES=/ { /\bnvidia\b/! s/\(/& i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm /; }' /etc/mkinitcpio.conf && grep "^MODULES=" /etc/mkinitcpio.conf
             ```
 
-        === "Manual configuration"
+        === "Edit the file directly"
             
             Add the following kernel modules to the `MODULES` array:
 
