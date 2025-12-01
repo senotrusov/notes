@@ -22,11 +22,19 @@ hide:
 
 # Arch Linux installation guide
 
-This guide presents a practical approach to installing [Arch Linux](https://archlinux.org/). It walks through disk layout, optional full-disk encryption, ext4 or Btrfs filesystems, and setup of the systemd-boot bootloader. It also includes steps for installing proprietary NVIDIA drivers.
+## Preface
 
-This document is not intended to replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most comprehensive and authoritative reference. Instead, it offers a personal and opinionated workflow, a set of practical notes meant to complement the Arch Wiki. Use both together to make informed decisions and adapt the process to your system.
+[Arch Linux](https://archlinux.org/) offers a remarkably elegant installation model: you type a sequence of commands and shape the system into exactly what you want. Its charm lies in this freedom. Rather than pushing you through a predetermined installer, the process invites you to build the system step by step, with full visibility into how everything fits together.
 
-While I typically configure my desktop environment and dotfiles separately, this guide provides a brief set of commands for installing the GNOME desktop environment for convenience.
+After spending a fair amount of time reading the [Arch Wiki](https://wiki.archlinux.org/), I assembled a set of notes on how to create a system aligned with my preferences for minimalism and privacy. The document you’re reading grew out of those notes. It serves as a curated series of commands, each annotated with context and paired with links back to the Arch Wiki for deeper understanding.
+
+Throughout the guide, you will find a few branching paths that let you tailor the system to your needs. You can choose whether to use full-disk encryption, pick between `ext4` and `Btrfs`, install the NVIDIA driver, or define the initial set of packages you want on your system. These options appear as tabs and expandable sections, each offering a prepared set of commands for the configuration you select.
+
+These commands could easily be shaped into a full installation script, but I chose not to go that route. A script would freeze everything into a fixed program, hide the decision points, discourage experimentation, and make future adjustments harder for both you and me. That feels at odds with the spirit of Arch Linux.
+
+Instead, the goal here is to keep each path open while providing a clear starting point. I make several decisions for you and consolidate them into ready-to-run commands, but you are free to follow them directly, watch closely, and diverge at any moment, or reshape the entire process into something uniquely your own.
+
+This document is not meant to replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most complete and authoritative resource. Use them together to make informed decisions and adapt the process to your own sense of how things should come together.
 
 This guide is provided under the terms of the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
