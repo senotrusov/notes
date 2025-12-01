@@ -24,9 +24,9 @@ hide:
 
 This guide presents a practical approach to installing [Arch Linux](https://archlinux.org/). It walks through disk layout, optional full-disk encryption, ext4 or Btrfs filesystems, and setup of the systemd-boot bootloader. It also includes steps for installing proprietary NVIDIA drivers.
 
-While I typically configure my desktop environment and dotfiles separately, this guide provides a brief set of commands for installing the GNOME desktop environment for convenience.
-
 This document is not intended to replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most comprehensive and authoritative reference. Instead, it offers a personal and opinionated workflow, a set of practical notes meant to complement the Arch Wiki. Use both together to make informed decisions and adapt the process to your system.
+
+While I typically configure my desktop environment and dotfiles separately, this guide provides a brief set of commands for installing the GNOME desktop environment for convenience.
 
 This guide is provided under the terms of the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
 
@@ -479,7 +479,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
     !!! info inline end
 
-        See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide and the [Btrfs: Getting started](https://wiki.archlinux.org/title/Btrfs#Getting_started) section for details on Btrfs usage and subvolume setup.
+        See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide for details on Btrfs usage and subvolume setup.
 
     Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting.
 
