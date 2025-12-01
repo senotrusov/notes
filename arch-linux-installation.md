@@ -625,6 +625,8 @@ Append optional packages, such as file system utilities, desktop environment com
     )
     ```
 
+    NetworkManager provides a unified way to manage network connections and integrates well with the GNOME desktop environment.
+
 ???+ abstract "Web browser and essential desktop fonts"
 
     ```sh
@@ -830,33 +832,39 @@ systemctl enable systemd-timesyncd.service
 
 ### Network configuration
 
-!!! tip inline end
-
-    For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
-
 Set a unique hostname for your system.
 
 ```sh
 echo myhostname >/etc/hostname
 ```
 
-Enable NetworkManager to manage network connections.
+!!! tip
 
-```sh
-systemctl enable NetworkManager.service
-```
+    For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
 
-### Enable GNOME display manager (GDM) (if installed)
+### Enable services that you may have optionally installed
 
-!!! info inline end
+???+ abstract "GNOME desktop environment and NetworkManager"
 
-    See the [GDM: Enable GDM](https://wiki.archlinux.org/title/GDM#Enable_GDM) for more details.
+    #### Enable the GNOME display manager (GDM)
 
-If you installed the GNOME desktop environment, enable its display manager to start the graphical environment on boot.
+    !!! info inline end
 
-```sh
-systemctl enable gdm.service
-```
+        See the [GDM](https://wiki.archlinux.org/title/GDM) guide for more details.
+
+    If you installed the GNOME desktop environment, enable its display manager so the graphical session starts automatically at boot.
+
+    ```sh
+    systemctl enable gdm.service
+    ```
+
+    #### Enable NetworkManager
+
+    If you installed NetworkManager, enable it so it can manage network connections on your system.
+
+    ```sh
+    systemctl enable NetworkManager.service
+    ```
 
 ### Set root password and create a user
 
