@@ -662,13 +662,31 @@ Generate the `fstab` file, which the system uses at boot to determine which file
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-**Check and edit `fstab`**
+**Review `fstab`**
 
-Review the generated file and update it as needed, such as removing Btrfs `subvolid=` entries and relying on `subvol=` path-based mounting for better snapshot flexibility.
+Check the generated file to confirm the filesystem entries:
 
 ```sh
-nano /mnt/etc/fstab
+cat /mnt/etc/fstab
 ```
+
+**Edit `fstab` (only if necessary)**
+
+Make any required adjustments to the file based on your setup.
+
+=== "Ext4 filesystem"
+
+    ```sh
+    nano /mnt/etc/fstab
+    ```
+
+=== "Btrfs filesystem"
+
+    For Btrfs configurations, consider removing any `subvolid=` entries and using path-based `subvol=` mounts for better snapshot flexibility.
+
+    ```sh
+    nano /mnt/etc/fstab
+    ```
 
 ### Configure systemd-boot
 
