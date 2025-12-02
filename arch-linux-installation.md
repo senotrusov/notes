@@ -713,6 +713,7 @@ bootctl --esp-path=/mnt/boot install
 ```
 
 !!! info "Why run this twice?"
+
     You will need to re-run this command later inside the chroot environment. The versions of packages on the live installation medium may be older than the versions installed on the target system, which can result in mismatches.
     
     However, the initial setup must be performed from *outside* the chroot because the chroot environment usually cannot query EFI variables to register the bootloader (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
@@ -721,40 +722,79 @@ bootctl --esp-path=/mnt/boot install
 
     Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
 
+    !!! info inline end "About the Unicode Switch"
+
+        Although the UEFI specification mandates **UCS-2 (Unicode)** encoding for boot entry descriptions and arguments, `efibootmgr` defaults to **ASCII** to maintain compatibility with older or non-standard firmware. 
+        
+        Most modern systems follow the standard and require the <span class="nobr">`--unicode`</span> switch. However, some firmware implementations are non-compliant and may expect ASCII. If your boot entries appear as unreadable garbage text or fail to pass arguments to the kernel, try toggling this switch to match your firmware's behavior.
+
     **View boot order and entries**
-    
+
     You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options:
 
-    ```sh
-    efibootmgr --unicode
-    ```
+    === "With unicode switch"
+
+        ```sh
+        efibootmgr --unicode
+        ```
+
+    === "Without unicode switch"
+
+        ```sh
+        efibootmgr
+        ```
 
     **Identify your new entry**
     
     The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID:
 
-    ```sh
-    efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
-    ```
+    === "With unicode switch"
+
+        ```sh
+        efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
+        ```
+
+    === "Without unicode switch"
+
+        ```sh
+        efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
+        ```
 
     **Modify boot order**
     
     If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above:
 
-    ```sh
-    efibootmgr --unicode --bootorder XXXX,XXXX 
-    ```
+    === "With unicode switch"
+
+        ```sh
+        efibootmgr --unicode --bootorder XXXX,XXXX 
+        ```
+
+    === "Without unicode switch"
+
+        ```sh
+        efibootmgr --bootorder XXXX,XXXX 
+        ```
 
     **Remove stale entries**
     
     You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
     
     !!! warning
+
         Proceed with caution. Make sure you are not deleting the entry for your current installation or the firmware interface.
 
-    ```sh
-    efibootmgr --unicode --delete-bootnum --bootnum XXXX
-    ```
+    === "With unicode switch"
+
+        ```sh
+        efibootmgr --unicode --delete-bootnum --bootnum XXXX
+        ```
+
+    === "Without unicode switch"
+
+        ```sh
+        efibootmgr --delete-bootnum --bootnum XXXX
+        ```
 
 #### Configure `loader.conf`
 
