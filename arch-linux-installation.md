@@ -686,6 +686,8 @@ Make any required adjustments to the file based on your setup.
 
 === "Ext4 filesystem"
 
+    Ext4 generally works well with its default settings, though you might consider adding `noatime` and `commit=30` if you want to further reduce disk writes and potentially improve performance.
+
     ```sh
     nano /mnt/etc/fstab
     ```
