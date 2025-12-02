@@ -20,13 +20,13 @@ hide:
   limitations under the License.
 -->
 
-# Arch Linux installation guide
+# <small>Stanislav's guide to</small> Arch Linux installation
 
 ## Preface
 
 [Arch Linux](https://archlinux.org/) offers a remarkably elegant installation model: you type a sequence of commands and shape the system into exactly what you want. Its charm lies in this freedom. Rather than pushing you through a predetermined installer, the process invites you to build the system step by step, with full visibility into how everything fits together.
 
-After spending a fair amount of time reading the [Arch Wiki](https://wiki.archlinux.org/), I assembled a set of notes on how to create a system aligned with my preferences for minimalism and privacy. The document you’re reading grew out of those notes. It serves as a curated series of commands, each annotated with context and paired with links back to the Arch Wiki for deeper understanding.
+After spending a fair amount of time reading the [Arch Wiki](https://wiki.archlinux.org/), I assembled a set of notes on how to create a system aligned with my preferences for minimalism and privacy. The document you're reading grew out of those notes. It serves as a curated series of commands, each annotated with context and paired with links back to the Arch Wiki for deeper understanding.
 
 These commands could easily be shaped into a full installation script, but I chose not to go that route. A script would freeze everything into a fixed program, hide the decision points, discourage experimentation, and make future adjustments harder for both you and me. That feels at odds with the spirit of Arch Linux.
 
@@ -312,7 +312,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
 
 !!! danger
 
-    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
+    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer's default format, even if it offers slightly lower performance, in exchange for peace of mind.
 
 If a 4K format is supported but not active, reformat the drive to the optimal LBA Format ID.
 
