@@ -28,11 +28,13 @@ hide:
 
 After spending a fair amount of time reading the [Arch Wiki](https://wiki.archlinux.org/), I assembled a set of notes on how to create a system aligned with my preferences for minimalism and privacy. The document you’re reading grew out of those notes. It serves as a curated series of commands, each annotated with context and paired with links back to the Arch Wiki for deeper understanding.
 
-Throughout the guide, you will find a few branching paths that let you tailor the system to your needs. You can choose whether to use full-disk encryption, pick between `ext4` and `Btrfs`, install the NVIDIA driver, or define the initial set of packages you want on your system. These options appear as tabs and expandable sections, each offering a prepared set of commands for the configuration you select.
-
 These commands could easily be shaped into a full installation script, but I chose not to go that route. A script would freeze everything into a fixed program, hide the decision points, discourage experimentation, and make future adjustments harder for both you and me. That feels at odds with the spirit of Arch Linux.
 
-Instead, the goal here is to keep each path open while providing a clear starting point. I make several decisions for you and consolidate them into ready-to-run commands, but you are free to follow them directly, watch closely, and diverge at any moment, or reshape the entire process into something uniquely your own.
+Instead, the goal here is to keep each path open while providing a clear starting point. I make several decisions for you and consolidate them into ready-to-run commands, but you are free to follow them directly, watch closely, diverge at any moment, or reshape the entire process into something uniquely your own.
+
+At a few key moments in the guide, you can choose between different prepared configurations. These include decisions such as whether to use full-disk encryption, selecting between `ext4` and `Btrfs`, installing the NVIDIA driver, or choosing which packages you want included in your installation. Every option is presented with its own tab or expandable section that provides a complete, ready-to-use command set.
+
+The guide also outlines practical methods and tool choices for configuring the system. It explains how to align an NVMe drive to a 4K logical sector size, enable TRIM within an encrypted setup so solid-state drives can manage unused blocks effectively, and create a clean partition scheme with parted. You will learn how to configure swap as a regular file, set up the `systemd-boot` bootloader, and add a helper for working with packages from the [Arch User Repository](https://aur.archlinux.org/). Finally, the guide shows how to connect over SSH during installation so you can work comfortably from another machine, making it easier to copy commands and research solutions as you go.
 
 This document is not meant to replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the most complete and authoritative resource. Use them together to make informed decisions and adapt the process to your own sense of how things should come together.
 
