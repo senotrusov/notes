@@ -704,13 +704,57 @@ Make any required adjustments to the file based on your setup.
 
 !!! info inline end
 
-    For more details on the boot manager, consult the Arch Wiki on [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot).
+    For detailed documentation, consult the guides on [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot) and [UEFI: efibootmgr](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface#efibootmgr).
 
-Install the `systemd-boot` boot manager to the EFI System Partition (ESP) and create the basic configuration files.
+Install the `systemd-boot` boot manager. This command populates the EFI System Partition (ESP) with the necessary binaries and creates the default configuration directory structure.
 
 ```sh
 bootctl --esp-path=/mnt/boot install
 ```
+
+!!! info "Why run this twice?"
+    You will need to re-run this command later inside the chroot environment. The versions of packages on the live installation medium may be older than the versions installed on the target system, which can result in mismatches.
+    
+    However, the initial setup must be performed from *outside* the chroot because the chroot environment usually cannot query EFI variables to register the bootloader (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
+
+???+ example "Verifying and managing EFI boot entries"
+
+    Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
+
+    **View boot order and entries**
+    
+    You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options:
+
+    ```sh
+    efibootmgr --unicode
+    ```
+
+    **Identify your new entry**
+    
+    The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID:
+
+    ```sh
+    efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
+    ```
+
+    **Modify boot order**
+    
+    If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above:
+
+    ```sh
+    efibootmgr --unicode --bootorder XXXX,XXXX 
+    ```
+
+    **Remove stale entries**
+    
+    You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
+    
+    !!! warning
+        Proceed with caution. Make sure you are not deleting the entry for your current installation or the firmware interface.
+
+    ```sh
+    efibootmgr --unicode --delete-bootnum --bootnum XXXX
+    ```
 
 #### Configure `loader.conf`
 
@@ -733,7 +777,7 @@ Define the boot process for the Arch Linux kernel.
 First, retrieve the UUID of the physical root partition.
 
 ```sh
-root_device_uuid="$(blkid -s UUID -o value "${root_physical:?}")"
+root_device_uuid="$(lsblk --nodeps --noheadings --output "UUID" "${root_physical:?}")"
 ```
 
 **2. Define kernel arguments**
