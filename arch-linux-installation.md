@@ -493,7 +493,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
     mount -o noatime,commit=30 "${root_actual:?}" /mnt
     ```
 
-    The `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
+    The `noatime` option improves performance by disabling file access time updates, and the `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
 
 === "Btrfs filesystem"
 
@@ -696,7 +696,7 @@ Make any required adjustments to the file based on your setup.
 
 === "Ext4 filesystem"
 
-    Ext4 generally works well with its default settings, though you might consider adding `noatime` and `commit=30` if you want to further reduce disk writes and potentially improve performance.
+    Ext4 generally does not require manual editing. Since `genfstab` detects active mount options, the flags you used earlier (`noatime` and `commit=30`) should already be present.
 
     ```sh
     nano /mnt/etc/fstab
@@ -704,7 +704,9 @@ Make any required adjustments to the file based on your setup.
 
 === "Btrfs filesystem"
 
-    For Btrfs configurations, consider removing any `subvolid=` entries and using path-based `subvol=` mounts for better snapshot flexibility.
+    Consider removing any `subvolid=` entries to rely solely on path-based `subvol=` mounts. This ensures that your system mounts the correct subvolumes even if their IDs change during a snapshot rollback.
+    
+    Since `genfstab` detects active mount options, the flags you used earlier (`noatime`, `flushoncommit`, and `subvol=`) should already be present.
 
     ```sh
     nano /mnt/etc/fstab
