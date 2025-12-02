@@ -390,19 +390,29 @@ mkpart root 1028 100%
 
 **Check partition alignment**
 
-Verify optimal alignment for partitions 1 and 2, which is essential for SSD performance.
+Verify optimal alignment for partition 1.
 
 ```parted
 align-check opt 1
+```
+
+Verify optimal alignment for partition 2. This is essential for SSD performance.
+
+```parted
 align-check opt 2
 ```
 
 **Review and exit**
 
-Review the partition table and exit `parted`.
+Display the partition table to verify the final layout.
 
 ```parted
 print
+```
+
+Exit `parted`.
+
+```parted
 quit
 ```
 
