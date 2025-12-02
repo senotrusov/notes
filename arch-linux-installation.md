@@ -20,7 +20,7 @@ hide:
   limitations under the License.
 -->
 
-# <small>Stanislav’s guide to</small> Arch Linux installation
+# <small>Stanislav’s guide to</small> <span class="nobr">Arch Linux</span> installation
 
 ## Preface
 
