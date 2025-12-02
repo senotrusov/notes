@@ -85,7 +85,7 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
       grep -m1 "SHA256" |
       grep -oE "[a-f0-9]{64}" |
       sed "s/$/  archlinux-x86_64.iso/" |
-      sha256sum -c -
+      sha256sum --check -
     ```
 
     If the output is `archlinux-x86_64.iso: OK`, the file is valid.
@@ -97,7 +97,7 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
     Replace `SIGNATURE` with the copied hash, then verify the file:
 
     ```sh
-    sha256sum -c <(echo SIGNATURE archlinux-x86_64.iso)
+    sha256sum --check <(echo SIGNATURE archlinux-x86_64.iso)
     ```
 
     If the output is `archlinux-x86_64.iso: OK`, the file is valid.
@@ -299,7 +299,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
     Examine the `Supported LBA Sizes` list at the end of the output.
 
     ```sh
-    smartctl -c "${target:?}"
+    smartctl --capabilities "${target:?}"
     ```
 
 === "With `nvme`"
@@ -307,7 +307,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
     Check the `LBA Format` list at the end of the output.
 
     ```sh
-    nvme id-ns -H "${target:?}"
+    nvme id-ns --human-readable "${target:?}"
     ```
 
 !!! danger
@@ -515,8 +515,8 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
     ```sh
     mount -o noatime,flushoncommit,subvol=/@ "${root_actual:?}" /mnt
-    mount -m -o noatime,flushoncommit,subvol=/@home "${root_actual:?}" /mnt/home
-    mount -m -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
+    mount --mkdir -o noatime,flushoncommit,subvol=/@home "${root_actual:?}" /mnt/home
+    mount --mkdir -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
     ```
 
 ### EFI system partition
@@ -534,7 +534,7 @@ mkfs.fat -F 32 -S 4096 "${efi:?}"
 Mount the ESP with secure permissions (`umask=0077`) to protect the boot files.
 
 ```sh
-mount -m -o noatime,umask=0077 "${efi:?}" /mnt/boot
+mount --mkdir -o noatime,umask=0077 "${efi:?}" /mnt/boot
 ```
 
 ### Double-check mounts
@@ -983,7 +983,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
     ```sh
     mkdir -p /swap
-    mkswap -U clear --size 8G --file /swap/swapfile
+    mkswap --uuid clear --size 8G --file /swap/swapfile
     echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
     ```
 
