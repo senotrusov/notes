@@ -410,13 +410,13 @@ quit
 
 Choose whether to encrypt the root partition with LUKS or proceed without encryption.
 
+!!! tip "Disk Encryption"
+
+    Disk encryption is a broad topic with many configuration options and security trade-offs. While this guide covers one possible approach, you can always dive deeper into the various methods and implementation details using the extensive [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt) page on the Arch Wiki.
+
 !!! abstract "Configure disk encryption"
 
     === "Use LUKS encryption"
-
-        !!! tip inline end
-
-            For more information, see the Arch Wiki on [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt).
 
         If you choose to encrypt the root partition (`$root_physical`) with LUKS2, the decrypted device becomes `$root_actual`.
 
