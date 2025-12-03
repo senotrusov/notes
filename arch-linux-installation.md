@@ -146,7 +146,7 @@ The USB drive can be safely removed once the live environment loads to a shell p
 
 ## Improve console readability
 
-!!! info inline end
+!!! info inline end ""
 
     For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console: Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
@@ -168,13 +168,13 @@ ping -c 3 archlinux.org
 
 Wired connections typically work automatically.
 
-!!! tip
+!!! tip ""
 
     For wireless setup or troubleshooting, see the [Installation guide: Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) guide.
 
 ???+ example "Connect to the live environment by SSH (optional)"
 
-    !!! info inline end
+    !!! info inline end ""
 
         Refer to the [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) guide for more information.
 
@@ -226,7 +226,7 @@ If the file exists and contains `64`, the system is in 64-bit UEFI mode. If the 
 
 ### Check system time
 
-!!! info inline end
+!!! info inline end ""
 
     For more details, see [Installation guide: Update the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
 
@@ -280,7 +280,7 @@ Use the appropriate tab for your disk type.
 
 ### Ensure 4K block size on NVMe drives
 
-!!! info inline end
+!!! info inline end ""
 
     See [Advanced Format: NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for more details.
 
@@ -322,7 +322,7 @@ nvme format --lbaf=FORMAT_ID "${target:?}"
 
 ### Verify TRIM support
 
-!!! info inline end
+!!! info inline end ""
 
     See [Solid state drive: TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for more details.
 
@@ -334,7 +334,7 @@ lsblk --discard "${target:?}"
 
 ## Create partitions
 
-!!! tip inline end
+!!! tip inline end ""
 
     For additional details on disk partitioning, refer to the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and the [Parted](https://wiki.archlinux.org/title/Parted) guide on the Arch Wiki.
 
@@ -362,7 +362,7 @@ unit MiB
 
 **Create the EFI system partition (ESP)**
 
-!!! info inline end
+!!! info inline end ""
 
     See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
 
@@ -420,7 +420,7 @@ quit
 
 Choose whether to encrypt the root partition with LUKS or proceed without encryption.
 
-!!! tip "Disk Encryption"
+!!! tip ""
 
     Disk encryption is a broad topic with many configuration options and security trade-offs. While this guide covers one possible approach, you can always dive deeper into the various methods and implementation details using the extensive [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt) page on the Arch Wiki.
 
@@ -442,7 +442,7 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
         ### Open the LUKS container and set persistent options
 
-        !!! info inline end
+        !!! info inline end ""
 
             For details on discard support and performance tuning, see  
             [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and  
@@ -468,7 +468,7 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
 ## Format and mount file systems
 
-!!! info inline end
+!!! info inline end ""
 
     See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
 
@@ -480,7 +480,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
 === "Ext4 filesystem"
 
-    !!! info inline end
+    !!! info inline end ""
 
         See the [ext4](https://wiki.archlinux.org/title/ext4) guide for more information.
 
@@ -497,7 +497,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
 === "Btrfs filesystem"
 
-    !!! info inline end
+    !!! info inline end ""
 
         See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide for details on Btrfs usage and subvolume setup.
 
@@ -557,7 +557,7 @@ mount | grep /mnt
 
 ## Install essential packages
 
-!!! tip inline end
+!!! tip inline end ""
 
     See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
 
@@ -672,7 +672,7 @@ The `-K` flag ensures a proper `pacman` keyring setup in the new system.
 
 ### Fstab (file system table)
 
-!!! info inline end
+!!! info inline end ""
 
     For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
 
@@ -714,7 +714,7 @@ Make any required adjustments to the file based on your setup.
 
 ### Configure systemd-boot
 
-!!! info inline end
+!!! info inline end ""
 
     For detailed documentation, consult the guides on [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot) and [UEFI: efibootmgr](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface#efibootmgr).
 
@@ -810,7 +810,7 @@ bootctl --esp-path=/mnt/boot install
 
 #### Configure `loader.conf`
 
-!!! info inline end
+!!! info inline end ""
 
     Consult the [systemd-boot: Loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) for additional configuration options.
 
@@ -868,7 +868,7 @@ Before creating the final boot entry, make sure the kernel arguments also match 
 
 **3. Create the configuration file**
 
-!!! info inline end
+!!! info inline end ""
 
     Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
 
@@ -917,7 +917,7 @@ In this step, you again choose one of the architecture tabs. Select the same arc
 
 ## Chroot into the installed system for final configuration
 
-!!! info inline end
+!!! info inline end ""
 
     See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) for more information on this process.
 
@@ -929,7 +929,7 @@ arch-chroot /mnt
 
 ### Time configuration
 
-!!! info inline end
+!!! info inline end ""
 
     For further details, see the [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and the [System time](https://wiki.archlinux.org/title/System_time) guide.
 
@@ -970,7 +970,7 @@ Set a unique hostname for your system.
 echo myhostname >/etc/hostname
 ```
 
-!!! tip
+!!! tip ""
 
     For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
 
@@ -980,7 +980,7 @@ echo myhostname >/etc/hostname
 
     #### Enable the GNOME display manager (GDM)
 
-    !!! info inline end
+    !!! info inline end ""
 
         See the [GDM](https://wiki.archlinux.org/title/GDM) guide for more details.
 
@@ -1000,7 +1000,7 @@ echo myhostname >/etc/hostname
 
 ### Set root password and create a user
 
-!!! info inline end
+!!! info inline end ""
 
     See the [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context.
 
@@ -1010,7 +1010,7 @@ Set a secure password for the root account. Even if you normally use `sudo` for 
 passwd
 ```
 
-!!! info inline end
+!!! info inline end ""
 
     For more information on managing users, see the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide.
 
@@ -1029,7 +1029,7 @@ echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 
 ### Swap space setup
 
-!!! info inline end
+!!! info inline end ""
 
     See the [Swap](https://wiki.archlinux.org/title/Swap) guide for a detailed guide to configuring swap space.
 
@@ -1049,7 +1049,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 === "Btrfs filesystem"
 
-    !!! info inline end
+    !!! info inline end ""
 
         A Btrfs swap file requires specific creation steps to avoid copy-on-write issues. See the [Btrfs: Swap file](https://wiki.archlinux.org/title/Btrfs#Swap_file) guide for more details.
 
@@ -1062,7 +1062,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 ### Configure Mkinitcpio
 
-!!! info inline end
+!!! info inline end ""
 
     For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and the [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio) guide.
 
@@ -1080,7 +1080,7 @@ nano /etc/mkinitcpio.conf
 
     === "Use LUKS encryption"
 
-        !!! info inline end
+        !!! info inline end ""
 
             See the [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
 
@@ -1108,7 +1108,7 @@ nano /etc/mkinitcpio.conf
 
 ???+ example "Configure the NVIDIA driver"
 
-    !!! info inline end
+    !!! info inline end ""
 
         See the [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
 
@@ -1190,7 +1190,7 @@ mkinitcpio -P
 
 ### Boot loader finalization
 
-!!! info inline end
+!!! info inline end ""
 
     See the [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
 
@@ -1228,7 +1228,7 @@ For further steps, see the [General recommendations](https://wiki.archlinux.org/
 
 ### Install AUR helper (optional)
 
-!!! info inline end
+!!! info inline end ""
 
     See the [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) guide and the [yay](https://github.com/Jguer/yay) project for more information.
 
