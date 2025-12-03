@@ -915,7 +915,7 @@ In this step, you again choose one of the architecture tabs. Select the same arc
     EOF
     ```
 
-## Chroot into the new system and configure
+## Chroot into the installed system for final configuration
 
 !!! info inline end
 
