@@ -1200,10 +1200,15 @@ systemctl enable systemd-boot-update.service
 
 ### Exit chroot and reboot
 
-Remove the installation USB drive, exit the chroot environment, and reboot the system into your new Arch Linux installation.
+Exit the chroot environment to return to the live installation shell.
 
 ```sh
 exit
+```
+
+Remove the installation USB drive and reboot the system into your new Arch Linux installation.
+
+```sh
 reboot
 ```
 
