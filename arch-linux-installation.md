@@ -954,6 +954,14 @@ hwclock --systohc
 systemctl enable systemd-timesyncd.service
 ```
 
+### Localization
+
+You may skip this step for now. If you do, the US keyboard layout will remain active during the installation and, if you use LUKS, it will also be the layout used at the LUKS password prompt after reboot to unlock the root partition. You can configure localization later, after your first boot into the new system.
+
+!!! tip ""
+
+    For detailed instructions, see the [Installation guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization) on the Arch Wiki.
+
 ### Network configuration
 
 Set a unique hostname for your system.
