@@ -338,6 +338,8 @@ lsblk --discard "${target:?}"
 
     For additional details on disk partitioning, refer to the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and the [Parted](https://wiki.archlinux.org/title/Parted) guide on the Arch Wiki.
 
+The plan is to create a ~1 GiB EFI system partition for boot files and use the remaining space for the root partition. Swap will later be added as a regular file within the root filesystem to keep the layout flexible.
+
 Launch `parted` for interactive partitioning:
 
 ```sh
@@ -364,6 +366,10 @@ Set the unit to mebibytes (`MiB`) so that any values passed to `mkpart` are inte
 unit MiB
 ```
 
+**Create the EFI system partition (ESP)**
+
+Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
+
 ???+ info "Rationale for the 1152 MiB alignment point"
 
     Modern high-density TLC and QLC flash devices that use 3-bit cells and multi-plane layouts often have erase block sizes divisible by three, such as 24 MiB, 48 MiB, or 96 MiB.
@@ -382,19 +388,23 @@ unit MiB
 
     As a side note, the boot partition is fine with 1 MiB alignment since it is rarely written.
 
-**Create the EFI system partition (ESP)**
+=== "Use LUKS encryption"
+
+    ```parted
+    mkpart efi fat32 1 1136
+    ```
+
+=== "Do not use LUKS encryption"
+
+    ```parted
+    mkpart efi fat32 1 1152
+    ```
+
+**Set the ESP flag**
 
 !!! info inline end ""
 
     See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
-
-Create a 1151 MiB FAT32 partition starting at 1 MiB.
-
-```parted
-mkpart efi fat32 1 1152
-```
-
-**Set the ESP flag**
 
 Mark the first partition as the EFI System Partition, which is necessary for UEFI bootloaders.
 
@@ -406,9 +416,17 @@ set 1 esp on
 
 Create the root partition using all remaining disk space, starting immediately after the ESP.
 
-```parted
-mkpart root 1152 100%
-```
+=== "Use LUKS encryption"
+
+    ```parted
+    mkpart root 1136 100%
+    ```
+
+=== "Do not use LUKS encryption"
+
+    ```parted
+    mkpart root 1152 100%
+    ```
 
 **Check partition alignment**
 
@@ -418,7 +436,7 @@ Verify optimal alignment for partition 1.
 align-check opt 1
 ```
 
-Verify optimal alignment for partition 2. This is essential for SSD performance.
+Verify optimal alignment for partition 2.
 
 ```parted
 align-check opt 2
