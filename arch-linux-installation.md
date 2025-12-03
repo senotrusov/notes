@@ -838,10 +838,10 @@ Selecting the right kernel parameters ensures that your system can locate and mo
 
 === "Use LUKS encryption"
 
-    Include the decryption device (`cryptdevice`) and set the root filesystem to the decrypted path (`/dev/mapper/luks-root`).
+    Include the decryption device (`rd.luks.name`) and set the root filesystem to the decrypted path (`/dev/mapper/luks-root`).
 
     ```sh
-    kernel_args="cryptdevice=UUID=${root_device_uuid}:luks-root root=/dev/mapper/luks-root"
+    kernel_args="rd.luks.name=${root_device_uuid}=luks-root root=/dev/mapper/luks-root"
     ```
 
 === "Do not use LUKS encryption"
@@ -1076,22 +1076,22 @@ nano /etc/mkinitcpio.conf
 
             See the [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
 
-        Integrate the `encrypt` hook into the `HOOKS` array. This hook enables the system to prompt for decryption during the early boot stage.
+        Integrate the `sd-encrypt` hook into the `HOOKS` array. This hook enables the system to prompt for decryption during the early boot stage.
 
         === "Apply changes automatically"
 
-            Run the command below and review its output. Confirm that `encrypt` appears after the `block` hook and before the `filesystems` hook in the `HOOKS=` line.
+            Run the command below and review its output. Confirm that `sd-encrypt` appears after the `block` hook and before the `filesystems` hook in the `HOOKS=` line.
 
             ```sh
-            sed -ri '/^HOOKS=/ { /\bencrypt\b/! s/\bblock\b/& encrypt/; }' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
+            sed -ri '/^HOOKS=/ { /\bsd-encrypt\b/! s/\bblock\b/& sd-encrypt/; }' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
             ```
 
         === "Edit the file directly"
 
-            Locate the `HOOKS=` line and manually insert `encrypt` after the `block` hook and before the `filesystems` hook.
+            Locate the `HOOKS=` line and manually insert `sd-encrypt` after the `block` hook and before the `filesystems` hook.
 
             ```
-            HOOKS=(... block encrypt filesystems ...)
+            HOOKS=(... block sd-encrypt filesystems ...)
             ```
 
     === "Do not use LUKS encryption"
