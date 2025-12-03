@@ -354,6 +354,10 @@ mklabel gpt
 
 **Set the unit to MiB for optimal alignment**
 
+!!! info inline end ""
+
+    See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
+
 Set the unit to mebibytes (`MiB`) to ensure partitions are aligned to mebibyte boundaries for optimal performance.
 
 ```parted
@@ -366,10 +370,10 @@ unit MiB
 
     See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
 
-Create a 1 GiB (1024 MiB) FAT32 partition starting at 4 MiB.
+Create a 1 GiB (1024 MiB) FAT32 partition starting at 1 MiB.
 
 ```parted
-mkpart efi fat32 4 1028
+mkpart efi fat32 1 1025
 ```
 
 **Set the ESP flag**
@@ -385,7 +389,7 @@ set 1 esp on
 Create the root partition using all remaining disk space, starting immediately after the ESP.
 
 ```parted
-mkpart root 1028 100%
+mkpart root 1025 100%
 ```
 
 **Check partition alignment**
