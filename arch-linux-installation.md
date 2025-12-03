@@ -358,11 +358,29 @@ mklabel gpt
 
     See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
 
-Set the unit to mebibytes (`MiB`) to ensure partitions are aligned to mebibyte boundaries for optimal performance.
+Set the unit to mebibytes (`MiB`) so that any values passed to `mkpart` are interpreted in this unit. Doing this first ensures partitions land on precise mebibyte boundaries, which avoids alignment problems and improves performance. Because the default `parted` unit is less exact, explicitly selecting `MiB` helps prevent unintended offsets.
 
 ```parted
 unit MiB
 ```
+
+???+ info "Rationale for the 1152 MiB alignment point"
+
+    Modern high-density TLC and QLC flash devices that use 3-bit cells and multi-plane layouts often have erase block sizes divisible by three, such as 24 MiB, 48 MiB, or 96 MiB.
+
+    Given that a boot partition typically needs about 1 GiB, a natural question arises: where should the root partition begin?
+
+    The 1152 MiB mark serves as a convenient common multiple that aligns cleanly with both traditional binary-oriented block sizes (such as 16 or 32 MiB) and newer ternary-based patterns. The following JavaScript snippet shows how evenly it divides into current and plausible future erase block sizes:
+
+    ```js
+    [4, 8, 16, 24, 32, 48, 96, 128, 192].map(i => 1152 / i)
+    ```
+
+    This assumes, of course, that filesystems arrange data in ways that respect the alignment constraints imposed by the hardware, which remains outside our control.
+
+    If you are using an encrypted partition with LUKS2, keep in mind that it adds its own header, typically 16 MiB. Subtract this amount from the 1152 MiB alignment target.
+
+    As a side note, the boot partition is fine with 1 MiB alignment since it is rarely written.
 
 **Create the EFI system partition (ESP)**
 
@@ -370,10 +388,10 @@ unit MiB
 
     See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
 
-Create a 1 GiB (1024 MiB) FAT32 partition starting at 1 MiB.
+Create a 1151 MiB FAT32 partition starting at 1 MiB.
 
 ```parted
-mkpart efi fat32 1 1025
+mkpart efi fat32 1 1152
 ```
 
 **Set the ESP flag**
@@ -389,7 +407,7 @@ set 1 esp on
 Create the root partition using all remaining disk space, starting immediately after the ESP.
 
 ```parted
-mkpart root 1025 100%
+mkpart root 1152 100%
 ```
 
 **Check partition alignment**
