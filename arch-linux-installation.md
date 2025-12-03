@@ -168,7 +168,7 @@ ping -c 3 archlinux.org
 
 Wired connections typically work automatically.
 
-!!! tip ""
+!!! tip "Wireless Network"
 
     For wireless setup or troubleshooting, see the [Installation guide: Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) guide.
 
@@ -334,9 +334,9 @@ lsblk --discard "${target:?}"
 
 ## Create partitions
 
-!!! tip inline end ""
+!!! tip inline end "Explore more partitioning options"
 
-    For additional details on disk partitioning, refer to the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and the [Parted](https://wiki.archlinux.org/title/Parted) guide on the Arch Wiki.
+    For more ways to set up your partitions, see the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and the [Parted](https://wiki.archlinux.org/title/Parted) guide on the Arch Wiki.
 
 The plan is to create a ~1 GiB EFI system partition for boot files and use the remaining space for the root partition. Swap will later be added as a regular file within the root filesystem to keep the layout flexible.
 
@@ -460,7 +460,7 @@ quit
 
 Choose whether to encrypt the root partition with LUKS or proceed without encryption.
 
-!!! tip ""
+!!! tip "Understanding disk encryption"
 
     Disk encryption is a broad topic with many configuration options and security trade-offs. While this guide covers one possible approach, you can always dive deeper into the various methods and implementation details using the extensive [dm-crypt](https://wiki.archlinux.org/title/Dm-crypt) page on the Arch Wiki.
 
@@ -597,7 +597,7 @@ mount | grep /mnt
 
 ## Install essential packages
 
-!!! tip inline end ""
+!!! tip inline end "More package ideas"
 
     See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
 
@@ -774,7 +774,7 @@ bootctl --esp-path=/mnt/boot install
 
     Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
 
-    !!! info inline end "About the Unicode Switch"
+    !!! tip inline end "About the Unicode Switch"
 
         Although the UEFI specification mandates **UCS-2 (Unicode)** encoding for boot entry descriptions and arguments, `efibootmgr` defaults to **ASCII** to maintain compatibility with older or non-standard firmware. 
         
@@ -1010,7 +1010,7 @@ Set a unique hostname for your system.
 echo myhostname >/etc/hostname
 ```
 
-!!! tip ""
+!!! tip "Further Network Setup Guidance"
 
     For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
 
