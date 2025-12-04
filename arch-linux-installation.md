@@ -114,7 +114,7 @@ sudo fdisk -l
 
     The device you select will be completely erased in the following steps. Choose carefully to avoid data loss.
 
-Set the device path variable, replacing `sdX` with your USB drive’s actual device name (e.g., `sdb` or `mmcblk0`):
+Set the device path variable, replacing `sdX` with your USB drive’s actual device name (e.g., `sdb` or `mmcblk0`).
 
 ```sh
 flash="/dev/sdX"
@@ -286,7 +286,7 @@ Use the appropriate tab for your disk type.
 
 Aligning your NVMe drive to a 4K (4096 bytes) logical sector size, if supported, improves performance and durability.
 
-First, check the current logical sector size:
+First, check the current logical sector size.
 
 ```sh
 fdisk -l "${target:?}"
@@ -340,7 +340,7 @@ lsblk --discard "${target:?}"
 
 The plan is to create a ~1 GiB EFI system partition for boot files and use the remaining space for the root partition. Swap will later be added as a regular file within the root filesystem to keep the layout flexible.
 
-Launch `parted` for interactive partitioning:
+Launch `parted` for interactive partitioning.
 
 ```sh
 parted "${target:?}"
@@ -619,6 +619,7 @@ Select your CPU architecture below and run the corresponding code block in your 
       man-pages
       nano
       sudo
+      terminus-font
       )
     ```
 
@@ -635,6 +636,7 @@ Select your CPU architecture below and run the corresponding code block in your 
       man-pages
       nano
       sudo
+      terminus-font
       )
     ```
 
@@ -651,6 +653,7 @@ Select your CPU architecture below and run the corresponding code block in your 
       man-pages
       nano
       sudo
+      terminus-font
       )
     ```
 
@@ -700,7 +703,7 @@ Append optional packages, such as file system utilities, desktop environment com
   
 ### Run package installation
 
-After defining the base system and appending optional packages, run the following command to install all selected packages onto the mounted system:
+After defining the base system and appending optional packages, run the following command to install all selected packages onto the mounted system.
 
 ```sh
 pacstrap -K /mnt "${packages[@]:?}"
@@ -724,7 +727,7 @@ genfstab -U /mnt >> /mnt/etc/fstab
 
 **Review `fstab`**
 
-Check the generated file to confirm the filesystem entries:
+Check the generated file to confirm the filesystem entries.
 
 ```sh
 cat /mnt/etc/fstab
@@ -832,9 +835,9 @@ bootctl --esp-path=/mnt/boot install
     
     You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
     
-    !!! warning
+    !!! danger
 
-        Proceed with caution. Make sure you are not deleting the entry for your current installation or the firmware interface.
+        Proceed with caution. Make sure you are not deleting the entry for your current installation, any other operating systems you use for multibooting, or the firmware interface.
 
     === "With unicode switch"
 
@@ -857,7 +860,7 @@ bootctl --esp-path=/mnt/boot install
 Set `arch.conf` as the default boot entry in the global bootloader configuration file.
 
 ```sh
-echo "default arch.conf" >>/mnt/boot/loader/loader.conf
+echo "default arch.conf" >> /mnt/boot/loader/loader.conf
 ```
 
 #### Create `arch.conf` boot entry
@@ -975,13 +978,13 @@ arch-chroot /mnt
 
 Set the system time zone and enable automatic synchronization.
 
-List available time zones with:
+List available time zones with.
 
 ```sh
 timedatectl list-timezones
 ```
 
-Set the system time zone by linking to the desired zone info file:
+Configure the system time zone by linking to the appropriate zone info file. Replace `Etc/UTC` with the time zone you want to use.
 
 ```sh
 ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
@@ -996,18 +999,78 @@ systemctl enable systemd-timesyncd.service
 
 ### Localization
 
-You may skip this step for now. If you do, the US keyboard layout will remain active during the installation and, if you use LUKS, it will also be the layout used at the LUKS password prompt after reboot to unlock the root partition. You can configure localization later, after your first boot into the new system.
+!!! tip inline end "Choosing your locale"
 
-!!! tip ""
+    If your primary locale is not US English, refer to the Arch Wiki’s [Installation guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization) to select the correct value and plan your configuration.
 
-    For detailed instructions, see the [Installation guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization) on the Arch Wiki.
+Define a variable for your chosen locale. This variable will be used in the following steps.
+
+```sh
+locale="en_US.UTF-8"
+```
+
+#### 1. Configure `/etc/locale.gen`
+
+Uncomment your chosen locale(s) in the `/etc/locale.gen` file.
+
+=== "Apply changes automatically"
+
+    Run the following command to automatically uncomment the line matching the `locale` variable.
+
+    ```sh
+    sed -ri "s/^#\s*(${locale//./[.]}(\s|\$))/\1/g" /etc/locale.gen
+    ```
+
+    Verify the uncommented (active) lines in `/etc/locale.gen`.
+
+    ```sh
+    grep -v "^#" /etc/locale.gen
+    ```
+
+=== "Edit the file directly"
+
+    Open `/etc/locale.gen` and manually uncomment the appropriate line(s) (remove the `#` symbol).
+
+    ```sh
+    nano /etc/locale.gen
+    ```
+
+#### 2. Generate locales
+
+Generate the configured locales.
+
+```sh
+locale-gen
+```
+
+#### 3. Create `/etc/locale.conf`
+
+Create `/etc/locale.conf` to set the system-wide `LANG` environment variable.
+
+```sh
+echo "LANG=${locale:?}" > /etc/locale.conf
+```
+
+#### 4. Configure virtual console
+
+Configure the virtual console by editing `/etc/vconsole.conf`. This sets the keyboard layout (`KEYMAP`) and console font (`FONT`) for the TTY/boot environment.
+
+Example for US layout and Terminus font (large).
+
+```sh
+( echo "KEYMAP=us" && echo "FONT=ter-128b" ) > /etc/vconsole.conf
+```
+
+!!! warning "Ensure correct keymap for entering LUKS password"
+
+    When using LUKS full disk encryption, the `KEYMAP` defined in `/etc/vconsole.conf` is the only layout active when prompted for the unlock password at boot. This keymap must match your physical keyboard layout to ensure you can correctly enter your password.
 
 ### Network configuration
 
 Set a unique hostname for your system.
 
 ```sh
-echo myhostname >/etc/hostname
+echo myhostname > /etc/hostname
 ```
 
 !!! tip "Further Network Setup Guidance"
@@ -1084,7 +1147,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
     ```sh
     mkdir -p /swap
     mkswap --uuid clear --size 8G --file /swap/swapfile
-    echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
+    echo "/swap/swapfile none swap defaults 0 0" >> /etc/fstab
     ```
 
 === "Btrfs filesystem"
@@ -1097,7 +1160,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
     ```sh
     btrfs filesystem mkswapfile --size 8g --uuid clear /swap/swapfile
-    echo "/swap/swapfile none swap defaults 0 0" >>/etc/fstab
+    echo "/swap/swapfile none swap defaults 0 0" >> /etc/fstab
     ```
 
 ### Configure Mkinitcpio
@@ -1108,7 +1171,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 The initial ramdisk environment (`initramfs`) must be configured correctly to ensure reliable system booting, especially when using LUKS encryption or proprietary NVIDIA drivers.
 
-You may apply the changes automatically using the commands provided below or perform the edits manually. If you choose manual configuration, open the primary configuration file:
+You may apply the changes automatically using the commands provided below or perform the edits manually. If you choose manual configuration, open the primary configuration file.
 
 ```sh
 nano /etc/mkinitcpio.conf
