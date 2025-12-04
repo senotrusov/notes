@@ -153,9 +153,9 @@ The USB drive can be safely removed once the live environment loads to a shell p
 Change the console font for better legibility, which is especially useful on high-resolution displays.
 
 ```sh
-setfont ter-124b  # 24-pixel font
-setfont ter-128b  # 28-pixel font
-setfont ter-132b  # 32-pixel font
+setfont ter-124b  # Western European codepage, 24-pixel height, bold
+setfont ter-128b  # Western European codepage, 28-pixel height, bold
+setfont ter-132b  # Western European codepage, 32-pixel height, bold
 ```
 
 ## Network checks and optional SSH connection
@@ -1055,7 +1055,7 @@ echo "LANG=${locale:?}" > /etc/locale.conf
 
 Configure the virtual console by editing `/etc/vconsole.conf`. This sets the keyboard layout (`KEYMAP`) and console font (`FONT`) for the TTY/boot environment.
 
-Example for US layout and Terminus font (large).
+Example for US layout and Terminus font (Western European codepage, 28-pixel height, bold).
 
 ```sh
 ( echo "KEYMAP=us" && echo "FONT=ter-128b" ) > /etc/vconsole.conf
