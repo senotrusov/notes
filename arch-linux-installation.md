@@ -1061,7 +1061,7 @@ Example for US layout and Terminus font (Western European codepage, 28-pixel hei
 ( echo "KEYMAP=us" && echo "FONT=ter-128b" ) > /etc/vconsole.conf
 ```
 
-!!! warning "Ensure correct keymap for entering LUKS password"
+!!! warning "Ensure correct keymap when entering LUKS password at boot"
 
     When using LUKS full disk encryption, the `KEYMAP` defined in `/etc/vconsole.conf` is the only layout active when prompted for the unlock password at boot. This keymap must match your physical keyboard layout to ensure you can correctly enter your password.
 
