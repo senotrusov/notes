@@ -1339,7 +1339,7 @@ Install `yay`, a popular tool for installing and managing packages from the Arch
 
 ```sh
 sudo pacman -S --needed git base-devel
-yay_temp="$(mktemp --directory)"
+yay_temp="$(mktemp -d)"
 git clone https://aur.archlinux.org/yay-bin.git "${yay_temp:?}"
 (cd "${yay_temp:?}" && makepkg -si)
 rm -rf "${yay_temp:?}"
