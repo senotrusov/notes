@@ -1107,7 +1107,7 @@ echo myhostname > /etc/hostname
 
     See the [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context.
 
-Set a secure password for the root account. Even if you normally use `sudo` for administrative tasks, the root password is still required for system recovery through the `systemd` emergency target.
+Set a strong password for the root account. Even if you normally use `sudo` for administrative tasks, the root password is required for system recovery tasks such as entering the `systemd` emergency shell.
 
 ```sh
 passwd
@@ -1115,16 +1115,27 @@ passwd
 
 !!! info inline end ""
 
-    For more information on managing users, see the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide.
+    For additional details on account management, see the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide.
 
-Create a regular user (example: `foo`) and add them to the `wheel` group so they can use `sudo`.
+Choose a username for your regular account (example: `foo`).
 
 ```sh
-useradd --create-home --groups wheel foo
-passwd foo
+username=foo
 ```
 
-Enable `sudo` access for the `wheel` group.
+Create the user, including a home directory, and add them to the `wheel` group to allow administrative access via `sudo`.
+
+```sh
+useradd --create-home --groups wheel "${username:?}"
+```
+
+Set a secure password for the new user.
+
+```sh
+passwd "${username:?}"
+```
+
+Enable `sudo` access for members of the `wheel` group.
 
 ```sh
 echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
