@@ -128,10 +128,10 @@ sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
 
 ???+ example "Verify the USB copy (optional)"
 
-    To ensure the data was written correctly, compare the written data byte-by-byte with the original ISO file. Remove and reinsert the USB drive first to clear any potential cache.
+    To ensure the data was written correctly, compare the written data byte-by-byte with the original ISO file.
 
     ```sh
-    sudo cmp -n "$(stat -c %s archlinux-x86_64.iso)" archlinux-x86_64.iso "${flash:?}" && echo OK || echo ERROR
+    sudo dd if="${flash:?}" iflag=direct,count_bytes count="$(stat -c %s archlinux-x86_64.iso)" bs=4M status=progress | cmp - archlinux-x86_64.iso && echo VERIFIED || echo ERROR
     ```
 
 ## Boot from USB flash drive
@@ -146,17 +146,17 @@ The USB drive can be safely removed once the live environment loads to a shell p
 
 ## Improve console readability
 
-!!! info inline end ""
-
-    For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console: Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
-
-Change the console font for better legibility, which is especially useful on high-resolution displays.
+Change the console font for better legibility, especially on high-resolution displays. This sets the Terminus font with a Western European codepage and bold weight. Choose the font size that suits your needs:
 
 ```sh
-setfont ter-124b  # Western European codepage, 24-pixel height, bold
-setfont ter-128b  # Western European codepage, 28-pixel height, bold
-setfont ter-132b  # Western European codepage, 32-pixel height, bold
+setfont ter-124b  # 24-pixel height
+setfont ter-128b  # 28-pixel height
+setfont ter-132b  # 32-pixel height
 ```
+
+!!! info ""
+
+    For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console: Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
 ## Network checks and optional SSH connection
 
@@ -334,11 +334,11 @@ lsblk --discard "${target:?}"
 
 ## Create partitions
 
-!!! tip inline end "Explore more partitioning options"
+The plan is to create a ~1 GiB EFI system partition for boot files and use the remaining space for the root partition. Swap will later be added as a regular file within the root filesystem to keep the layout flexible.
+
+!!! tip "Explore more partitioning options"
 
     For more ways to set up your partitions, see the [Installation guide: Partition the disks](https://wiki.archlinux.org/title/Installation_guide#Partition_the_disks) and the [Parted](https://wiki.archlinux.org/title/Parted) guide on the Arch Wiki.
-
-The plan is to create a ~1 GiB EFI system partition for boot files and use the remaining space for the root partition. Swap will later be added as a regular file within the root filesystem to keep the layout flexible.
 
 Launch `parted` for interactive partitioning.
 
@@ -482,17 +482,17 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
         ### Open the LUKS container and set persistent options
 
-        !!! info inline end ""
-
-            For details on discard support and performance tuning, see  
-            [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and  
-            [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
-
         Open the encrypted partition and map it as `/dev/mapper/luks-root`. The performance and discard options enabled here apply automatically for future unlocks.
 
         ```sh
         cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
         ```
+
+        !!! info ""
+
+            For details on discard support and performance tuning, see 
+            [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and 
+            [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
 
         ### Set the `root_actual` variable
 
@@ -508,11 +508,11 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
 ## Format and mount file systems
 
-!!! info inline end ""
+Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`).
+
+!!! info ""
 
     See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
-
-Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`).
 
 ### Root partition
 
@@ -597,11 +597,11 @@ mount | grep /mnt
 
 ## Install essential packages
 
-!!! tip inline end "More package ideas"
+Select your CPU architecture below and run the corresponding code block in your shell to initialize the `packages` array. This array includes the kernel, firmware, boot manager tools, essential utilities, and the correct CPU microcode package.
+
+!!! tip "More package ideas"
 
     See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
-
-Select your CPU architecture below and run the corresponding code block in your shell to initialize the `packages` array. This array includes the kernel, firmware, boot manager tools, essential utilities, and the correct CPU microcode package.
 
 ### Define the base system
 
@@ -777,7 +777,7 @@ bootctl --esp-path=/mnt/boot install
 
     Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
 
-    !!! tip inline end "About the Unicode Switch"
+    !!! tip "About the Unicode Switch"
 
         Although the UEFI specification mandates **UCS-2 (Unicode)** encoding for boot entry descriptions and arguments, `efibootmgr` defaults to **ASCII** to maintain compatibility with older or non-standard firmware. 
         
@@ -999,7 +999,7 @@ systemctl enable systemd-timesyncd.service
 
 ### Localization
 
-!!! tip inline end "Choosing your locale"
+!!! tip "Choosing your locale"
 
     If your primary locale is not US English, refer to the Arch Wiki’s [Installation guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization) to select the correct value and plan your configuration.
 
