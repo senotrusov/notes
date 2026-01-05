@@ -74,11 +74,7 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
 
 === "Using the one-liner"
 
-    !!! warning inline end
-
-        Although this one-liner is convenient, it may break if the download page changes its formatting. If you encounter issues, use the manual method.
-
-    This method relies on the [archlinux.org](https://archlinux.org/) website to securely provide the correct checksum.
+    This method relies on the Arch Linux [download page](https://archlinux.org/download/#checksums) to securely provide the correct checksum.
 
     ```sh
     curl -s https://archlinux.org/download/ |
@@ -90,9 +86,13 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
 
     If the output is `archlinux-x86_64.iso: OK`, the file is valid.
 
+    !!! warning "One-liner limitations"
+
+        Although this one-liner is convenient, changes to the download page formatting may prevent it from retrieving the correct checksum. If you encounter issues, use the manual method.
+
 === "Manually obtaining the checksum"
 
-    Visit the [Arch Linux download](https://archlinux.org/download/#checksums) and copy the SHA256 hash for the ISO.
+    Visit the Arch Linux [download page](https://archlinux.org/download/#checksums) and copy the SHA256 hash for the ISO.
 
     Replace `SIGNATURE` with the copied hash, then verify the file:
 
@@ -110,7 +110,7 @@ Identify the target USB device using `fdisk -l`, then set the device path variab
 sudo fdisk -l
 ```
 
-!!! danger
+!!! danger "All data on the selected device will be lost"
 
     The device you select will be completely erased in the following steps. Choose carefully to avoid data loss.
 
@@ -140,9 +140,9 @@ Access your system’s firmware (BIOS/UEFI) settings to select the USB drive as 
 
 The USB drive can be safely removed once the live environment loads to a shell prompt.
 
-!!! warning
+!!! warning "Secure Boot is not supported"
 
-    **Disable Secure Boot** in your firmware settings. The official Arch Linux installation images do not support Secure Boot. Secure Boot configuration for the installed system is an advanced topic; consult the [Secure Boot](https://wiki.archlinux.org/title/Secure_Boot) guide if required.
+    The official Arch Linux installation images do not support Secure Boot, so it must be disabled to boot the installer. Enabling Secure Boot on the installed system is an advanced topic and is not covered in this guide. If required, consult the [Secure Boot](https://wiki.archlinux.org/title/Secure_Boot) page.
 
 ## Improve console readability
 
@@ -154,7 +154,7 @@ setfont ter-128b  # 28-pixel height
 setfont ter-132b  # 32-pixel height
 ```
 
-!!! info ""
+!!! info
 
     For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console: Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
@@ -174,7 +174,7 @@ Wired connections typically work automatically.
 
 ???+ example "Connect to the live environment by SSH (optional)"
 
-    !!! info inline end ""
+    !!! info inline end
 
         Refer to the [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) guide for more information.
 
@@ -226,7 +226,7 @@ If the file exists and contains `64`, the system is in 64-bit UEFI mode. If the 
 
 ### Check system time
 
-!!! info inline end ""
+!!! info inline end
 
     For more details, see [Installation guide: Update the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
 
@@ -246,7 +246,7 @@ Identify the target disk by listing available block devices and assign the devic
 fdisk -l
 ```
 
-!!! danger
+!!! danger "All data on the selected disk will be lost"
 
     The device you select will be completely erased in the following steps. Choose carefully to avoid data loss. Back up all necessary data.
 
@@ -280,7 +280,7 @@ Use the appropriate tab for your disk type.
 
 ### Ensure 4K block size on NVMe drives
 
-!!! info inline end ""
+!!! info inline end
 
     See [Advanced Format: NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for more details.
 
@@ -310,7 +310,7 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
     nvme id-ns --human-readable "${target:?}"
     ```
 
-!!! danger
+!!! danger "Destructive operation with potential hardware risk"
 
     This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
 
@@ -322,7 +322,7 @@ nvme format --lbaf=FORMAT_ID "${target:?}"
 
 ### Verify TRIM support
 
-!!! info inline end ""
+!!! info inline end
 
     See [Solid state drive: TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for more details.
 
@@ -356,7 +356,7 @@ mklabel gpt
 
 **Set the unit to MiB for optimal alignment**
 
-!!! info inline end ""
+!!! info inline end
 
     See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
 
@@ -370,7 +370,7 @@ unit MiB
 
 Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
 
-???+ info "Rationale for the 1152 MiB alignment point"
+???+ tip "Rationale for the 1152 MiB alignment point"
 
     Modern high-density TLC and QLC flash devices that use 3-bit cells and multi-plane layouts often have erase block sizes divisible by three, such as 24 MiB, 48 MiB, or 96 MiB.
 
@@ -402,7 +402,7 @@ Create a FAT32 partition that occupies the space from 1 MiB up to the chosen ali
 
 **Set the ESP flag**
 
-!!! info inline end ""
+!!! info inline end
 
     See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
 
@@ -488,7 +488,7 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
         cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
         ```
 
-        !!! info ""
+        !!! info
 
             For details on discard support and performance tuning, see 
             [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and 
@@ -510,7 +510,7 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
 Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`).
 
-!!! info ""
+!!! info
 
     See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
 
@@ -520,7 +520,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
 === "Ext4 filesystem"
 
-    !!! info inline end ""
+    !!! info inline end
 
         See the [ext4](https://wiki.archlinux.org/title/ext4) guide for more information.
 
@@ -537,7 +537,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
 
 === "Btrfs filesystem"
 
-    !!! info inline end ""
+    !!! info inline end
 
         See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide for details on Btrfs usage and subvolume setup.
 
@@ -715,7 +715,7 @@ The `-K` flag ensures a proper `pacman` keyring setup in the new system.
 
 ### Fstab (file system table)
 
-!!! info inline end ""
+!!! info inline end
 
     For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
 
@@ -757,7 +757,7 @@ Make any required adjustments to the file based on your setup.
 
 ### Configure systemd-boot
 
-!!! info inline end ""
+!!! info inline end
 
     For detailed documentation, consult the guides on [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot) and [UEFI: efibootmgr](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface#efibootmgr).
 
@@ -835,7 +835,7 @@ bootctl --esp-path=/mnt/boot install
     
     You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
     
-    !!! danger
+    !!! danger "Deleting the wrong entry can make the system unbootable"
 
         Proceed with caution. Make sure you are not deleting the entry for your current installation, any other operating systems you use for multibooting, or the firmware interface.
 
@@ -853,7 +853,7 @@ bootctl --esp-path=/mnt/boot install
 
 #### Configure `loader.conf`
 
-!!! info inline end ""
+!!! info inline end
 
     Consult the [systemd-boot: Loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) for additional configuration options.
 
@@ -911,7 +911,7 @@ Before creating the final boot entry, make sure the kernel arguments also match 
 
 **3. Create the configuration file**
 
-!!! info inline end ""
+!!! info inline end
 
     Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
 
@@ -972,7 +972,7 @@ arch-chroot /mnt
 
 ### Time configuration
 
-!!! info inline end ""
+!!! info inline end
 
     For further details, see the [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and the [System time](https://wiki.archlinux.org/title/System_time) guide.
 
@@ -1083,7 +1083,7 @@ echo myhostname > /etc/hostname
 
     #### Enable the GNOME display manager (GDM)
 
-    !!! info inline end ""
+    !!! info inline end
 
         See the [GDM](https://wiki.archlinux.org/title/GDM) guide for more details.
 
@@ -1103,7 +1103,7 @@ echo myhostname > /etc/hostname
 
 ### Set root password and create a user
 
-!!! info inline end ""
+!!! info inline end
 
     See the [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context.
 
@@ -1113,7 +1113,7 @@ Set a strong password for the root account. Even if you normally use `sudo` for 
 passwd
 ```
 
-!!! info inline end ""
+!!! info inline end
 
     For additional details on account management, see the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide.
 
@@ -1143,7 +1143,7 @@ echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 
 ### Swap space setup
 
-!!! info inline end ""
+!!! info inline end
 
     See the [Swap](https://wiki.archlinux.org/title/Swap) guide for a detailed guide to configuring swap space.
 
@@ -1163,7 +1163,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 === "Btrfs filesystem"
 
-    !!! info inline end ""
+    !!! info inline end
 
         A Btrfs swap file requires specific creation steps to avoid copy-on-write issues. See the [Btrfs: Swap file](https://wiki.archlinux.org/title/Btrfs#Swap_file) guide for more details.
 
@@ -1176,7 +1176,7 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 ### Configure Mkinitcpio
 
-!!! info inline end ""
+!!! info inline end
 
     For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and the [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio) guide.
 
@@ -1304,7 +1304,7 @@ mkinitcpio -P
 
 ### Boot loader finalization
 
-!!! info inline end ""
+!!! info inline end
 
     See the [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
 
@@ -1342,7 +1342,7 @@ For further steps, see the [General recommendations](https://wiki.archlinux.org/
 
 ### Install AUR helper (optional)
 
-!!! info inline end ""
+!!! info inline end
 
     See the [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) guide and the [yay](https://github.com/Jguer/yay) project for more information.
 
