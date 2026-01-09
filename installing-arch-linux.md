@@ -368,8 +368,6 @@ unit MiB
 
 **Create the EFI system partition (ESP)**
 
-Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
-
 ???+ tip "Rationale for the 1152 MiB alignment point"
 
     Modern high-density TLC and QLC flash devices that use 3-bit cells and multi-plane layouts often have erase block sizes divisible by three, such as 24 MiB, 48 MiB, or 96 MiB.
@@ -387,6 +385,8 @@ Create a FAT32 partition that occupies the space from 1 MiB up to the chosen ali
     If you are using an encrypted partition with LUKS2, keep in mind that it adds its own header, typically 16 MiB. Subtract this amount from the 1152 MiB alignment target.
 
     As a side note, the boot partition is fine with 1 MiB alignment since it is rarely written.
+
+Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB:
 
 === "Use LUKS encryption"
 
