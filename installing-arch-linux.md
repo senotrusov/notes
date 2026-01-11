@@ -94,7 +94,7 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
 
     Visit the Arch Linux [download page](https://archlinux.org/download/#checksums) and copy the SHA256 hash for the ISO.
 
-    Replace `SIGNATURE` with the copied hash, then verify the file:
+    Replace `SIGNATURE` with the copied hash, then verify the file.
 
     ```sh
     sha256sum --check <(echo SIGNATURE archlinux-x86_64.iso)
@@ -146,7 +146,7 @@ The USB drive can be safely removed once the live environment loads to a shell p
 
 ## Improve console readability
 
-Change the console font for better legibility, especially on high-resolution displays. This sets the Terminus font with a Western European codepage and bold weight. Choose the font size that suits your needs:
+Change the console font for better legibility, especially on high-resolution displays. This sets the Terminus font with a Western European codepage and bold weight. Choose the font size that suits your needs.
 
 ```sh
 setfont ter-124b  # 24-pixel height
@@ -206,7 +206,7 @@ Wired connections typically work automatically.
         ip addr
         ```
 
-        Use the assigned IP address to connect from your client machine, replacing `IP_ADDRESS`:
+        Use the assigned IP address to connect from your client machine, replacing `IP_ADDRESS`.
 
         ```sh
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
@@ -374,7 +374,7 @@ unit MiB
 
     Given that a boot partition typically needs about 1 GiB, a natural question arises: where should the root partition begin?
 
-    The 1152 MiB mark serves as a convenient common multiple that aligns cleanly with both traditional binary-oriented block sizes (such as 16 or 32 MiB) and newer ternary-based patterns. The following JavaScript snippet shows how evenly it divides into current and plausible future erase block sizes:
+    The 1152 MiB mark serves as a convenient common multiple that aligns cleanly with both traditional binary-oriented block sizes (such as 16 or 32 MiB) and newer ternary-based patterns. The following JavaScript snippet shows how evenly it divides into current and plausible future erase block sizes.
 
     ```js
     [4, 8, 16, 24, 32, 48, 96, 128, 192].map(i => 1152 / i)
@@ -386,7 +386,7 @@ unit MiB
 
     As a side note, the boot partition is fine with 1 MiB alignment since it is rarely written.
 
-Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB:
+Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
 
 === "Use LUKS encryption"
 
@@ -785,7 +785,7 @@ bootctl --esp-path=/mnt/boot install
 
     **View boot order and entries**
 
-    You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options:
+    You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
 
     === "With unicode switch"
 
@@ -801,7 +801,7 @@ bootctl --esp-path=/mnt/boot install
 
     **Identify your new entry**
     
-    The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID:
+    The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
 
     === "With unicode switch"
 
@@ -817,7 +817,7 @@ bootctl --esp-path=/mnt/boot install
 
     **Modify boot order**
     
-    If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above:
+    If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
 
     === "With unicode switch"
 
@@ -1149,7 +1149,7 @@ echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 
 Even with large amounts of RAM, swap is important because it provides a backing store for inactive program memory, allowing the kernel to better manage physical RAM and file caching.
 
-Select the appropriate method based on your filesystem to create and enable an 8 GiB (example size) swap file:
+Select the appropriate method based on your filesystem to create and enable an 8 GiB (example size) swap file.
 
 === "Ext4 filesystem"
 
@@ -1252,7 +1252,7 @@ nano /etc/mkinitcpio.conf
 
     These kernel modules ensure that the NVIDIA driver stack is loaded early during boot.
 
-    Select the configuration that matches your system:
+    Select the configuration that matches your system.
 
     === "Standard NVIDIA"
 
@@ -1268,7 +1268,7 @@ nano /etc/mkinitcpio.conf
 
         === "Edit the file directly"
 
-            Add the following kernel modules to the `MODULES` array:
+            Add the following kernel modules to the `MODULES` array.
 
             ```
             MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
@@ -1288,7 +1288,7 @@ nano /etc/mkinitcpio.conf
 
         === "Edit the file directly"
             
-            Add the following kernel modules to the `MODULES` array:
+            Add the following kernel modules to the `MODULES` array.
 
             ```
             MODULES=(i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm)
