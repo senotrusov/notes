@@ -1174,6 +1174,20 @@ Select the appropriate method based on your filesystem to create and enable an 8
     echo "/swap/swapfile none swap defaults 0 0" >> /etc/fstab
     ```
 
+### Enable periodic TRIM
+
+=== "Ext4 filesystem"
+
+    If your root filesystem is `ext4` on an SSD, enable the `fstrim` timer so the system periodically issues TRIM to free unused blocks. This helps maintain SSD write performance over time.
+
+    ```sh
+    systemctl enable fstrim.timer
+    ```
+
+=== "Btrfs filesystem"
+
+    No action is needed, since Btrfs automatically enables the `discard=async` mount option on devices that support it.
+
 ### Configure Mkinitcpio
 
 !!! info inline end
