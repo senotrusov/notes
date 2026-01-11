@@ -609,17 +609,17 @@ Select your CPU architecture below and run the corresponding code block in your 
 
     ```sh
     packages=(
-      amd-ucode
-      base
-      efibootmgr
-      intel-ucode
-      linux
-      linux-firmware
-      man-db
-      man-pages
-      nano
-      sudo
-      terminus-font
+      amd-ucode         # CPU microcode updates for AMD processors
+      base              # Minimal base system required for a functional Arch installation
+      efibootmgr        # Tool for managing UEFI boot entries
+      intel-ucode       # CPU microcode updates for Intel processors
+      linux             # The Linux kernel
+      linux-firmware    # Firmware files required by many hardware devices
+      man-db            # Backend for the manual page system
+      man-pages         # Official Linux manual pages
+      nano              # Simple terminal-based text editor
+      sudo              # Privileged command execution for non-root users
+      terminus-font     # Readable monospaced console font
       )
     ```
 
@@ -627,16 +627,16 @@ Select your CPU architecture below and run the corresponding code block in your 
 
     ```sh
     packages=(
-      base
-      efibootmgr
-      intel-ucode
-      linux
-      linux-firmware
-      man-db
-      man-pages
-      nano
-      sudo
-      terminus-font
+      base              # Minimal base system required for a functional Arch installation
+      efibootmgr        # Tool for managing UEFI boot entries
+      intel-ucode       # CPU microcode updates for Intel processors
+      linux             # The Linux kernel
+      linux-firmware    # Firmware files required by many hardware devices
+      man-db            # Backend for the manual page system
+      man-pages         # Official Linux manual pages
+      nano              # Simple terminal-based text editor
+      sudo              # Privileged command execution for non-root users
+      terminus-font     # Readable monospaced console font
       )
     ```
 
@@ -644,63 +644,83 @@ Select your CPU architecture below and run the corresponding code block in your 
 
     ```sh
     packages=(
-      amd-ucode
-      base
-      efibootmgr
-      linux
-      linux-firmware
-      man-db
-      man-pages
-      nano
-      sudo
-      terminus-font
+      amd-ucode         # CPU microcode updates for AMD processors
+      base              # Minimal base system required for a functional Arch installation
+      efibootmgr        # Tool for managing UEFI boot entries
+      linux             # The Linux kernel
+      linux-firmware    # Firmware files required by many hardware devices
+      man-db            # Backend for the manual page system
+      man-pages         # Official Linux manual pages
+      nano              # Simple terminal-based text editor
+      sudo              # Privileged command execution for non-root users
+      terminus-font     # Readable monospaced console font
       )
     ```
 
 ### Add optional packages
 
-Append optional packages, such as file system utilities, desktop environment components, or drivers, to the `packages` array.
+Append optional packages such as desktop environments, drivers, and file system utilities to the `packages` array as needed for your system.
 
-???+ example "Btrfs file system utilities"
+???+ example "GNOME desktop environment"
+
+    Install these packages to get a complete, modern graphical desktop with integrated networking, audio, and Bluetooth support.
 
     ```sh
     packages+=(
-      btrfs-progs
-      compsize
+      bluez              # Linux Bluetooth protocol stack
+      bluez-utils        # Bluetooth command-line utilities
+      gnome              # Full GNOME desktop environment
+      gnome-terminal     # GNOME terminal emulator
+      networkmanager     # Network connection management service
+      pipewire           # Audio and video processing framework
+      wireplumber        # PipeWire session manager
+    )
+    ```
+
+???+ example "Web browser and essential desktop fonts"
+
+    Recommended for most desktop systems. A web browser is required for everyday use, and the Noto font family provides broad language and emoji coverage with consistent rendering.
+
+    ```sh
+    packages+=(
+      firefox            # Graphical web browser
+      noto-fonts         # Primary Unicode font family
+      noto-fonts-cjk     # Chinese, Japanese, and Korean font support
+      noto-fonts-emoji   # Emoji font for full emoji rendering
     )
     ```
 
 ???+ example "NVIDIA open kernel driver"
 
-    ```sh
-    packages+=(
-      nvidia-open
-    )
-    ```
-
-???+ example "GNOME desktop environment and NetworkManager"
+    Install this package if your system uses a supported NVIDIA GPU and you want hardware-accelerated graphics. It targets newer GPUs and integrates directly with the Linux kernel.
 
     ```sh
     packages+=(
-      gnome
-      gnome-terminal
-      networkmanager
+      nvidia-open        # Open-source NVIDIA kernel driver
     )
     ```
 
-    NetworkManager provides a unified way to manage network connections and integrates well with the GNOME desktop environment.
+???+ example "Btrfs file system utilities"
 
-???+ example "Web browser and essential desktop fonts"
+    Install these packages if you plan to use Btrfs on the root filesystem or on additional drives.
 
     ```sh
     packages+=(
-      firefox
-      noto-fonts
-      noto-fonts-cjk
-      noto-fonts-emoji
+      btrfs-progs        # Btrfs user-space management tools
+      compsize           # Reports compression and disk usage on Btrfs
     )
     ```
-  
+
+???+ example "`systemd-resolved` system DNS resolver"
+
+    Install this package only if you plan to use systemd-resolved and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless systemd-resolved will be enabled later in this guide.
+
+    ```sh
+    packages+=(
+      systemd-resolvconf # resolvconf compatibility for systemd-resolved
+    )
+    ```
+ 
 ### Run package installation
 
 After defining the base system and appending optional packages, run the following command to install all selected packages onto the mounted system.
@@ -958,9 +978,23 @@ In this step, you again choose one of the architecture tabs. Select the same arc
     EOF
     ```
 
+### Configure `systemd-resolved`
+
+The `/etc/resolv.conf` file is bind-mounted from the host system when using `arch-chroot`, so it cannot be replaced from inside the chroot. To ensure DNS resolution works correctly on the installed system, you must create the symlink before entering the chroot environment.
+
+Run the following command from outside the chroot:
+
+```sh
+ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
+```
+
+!!! info
+
+    For more details about DNS handling and alternative setups, see the [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved) wiki page.
+
 ## Chroot into the installed system for final configuration
 
-!!! info inline end ""
+!!! info inline end
 
     See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) for more information on this process.
 
@@ -1077,9 +1111,59 @@ echo myhostname > /etc/hostname
 
     For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
 
+
+#### Configure systemd-resolved to use DNS over TLS
+
+Enable the `systemd-resolved` service.
+
+```sh
+systemctl enable systemd-resolved.service
+```
+
+Create the configuration drop-in directory.
+
+```sh
+mkdir -p /etc/systemd/resolved.conf.d
+```
+
+Create a drop-in configuration file for your preferred DNS provider. Use one of the following examples or supply your own configuration. The configuration enforces encrypted DNS for all domains.
+
+=== "Cloudflare"
+
+    ```sh
+    cat <<EOF > /etc/systemd/resolved.conf.d/dns_over_tls.conf
+    [Resolve]
+    DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com
+    DNSOverTLS=yes
+    Domains=~.
+    EOF
+    ```
+
+=== "Google"
+
+    ```sh
+    cat <<EOF > /etc/systemd/resolved.conf.d/dns_over_tls.conf
+    [Resolve]
+    DNS=8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google
+    DNSOverTLS=yes
+    Domains=~.
+    EOF
+    ```
+
+=== "Cloudflare and Google"
+
+    ```sh
+    cat <<EOF > /etc/systemd/resolved.conf.d/dns_over_tls.conf
+    [Resolve]
+    DNS=1.1.1.1#cloudflare-dns.com 1.0.0.1#cloudflare-dns.com 2606:4700:4700::1111#cloudflare-dns.com 2606:4700:4700::1001#cloudflare-dns.com 8.8.8.8#dns.google 8.8.4.4#dns.google 2001:4860:4860::8888#dns.google 2001:4860:4860::8844#dns.google
+    DNSOverTLS=yes
+    Domains=~.
+    EOF
+    ```
+
 ### Enable services that you may have optionally installed
 
-???+ example "GNOME desktop environment and NetworkManager"
+???+ example "GNOME desktop environment"
 
     #### Enable the GNOME display manager (GDM)
 
@@ -1087,7 +1171,7 @@ echo myhostname > /etc/hostname
 
         See the [GDM](https://wiki.archlinux.org/title/GDM) guide for more details.
 
-    If you installed the GNOME desktop environment, enable its display manager so the graphical session starts automatically at boot.
+    If you installed the GNOME desktop environment, enable its display manager so the graphical login screen starts automatically at boot.
 
     ```sh
     systemctl enable gdm.service
@@ -1095,10 +1179,18 @@ echo myhostname > /etc/hostname
 
     #### Enable NetworkManager
 
-    If you installed NetworkManager, enable it so it can manage network connections on your system.
+    If NetworkManager is installed, enable it so network connections are managed automatically.
 
     ```sh
     systemctl enable NetworkManager.service
+    ```
+
+    #### Enable the Bluetooth service
+
+    If Bluetooth packages are installed, enable the Bluetooth service to manage devices.
+
+    ```sh
+    systemctl enable bluetooth.service
     ```
 
 ### Set root password and create a user
