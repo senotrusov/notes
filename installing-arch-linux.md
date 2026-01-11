@@ -1180,9 +1180,9 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
     For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and the [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio) guide.
 
-The initial ramdisk environment (`initramfs`) must be configured correctly to ensure reliable system booting, especially when using LUKS encryption or proprietary NVIDIA drivers.
+The initial ramdisk environment (`initramfs`) must be configured correctly to ensure successful system booting, particularly when using LUKS encryption or proprietary NVIDIA drivers.
 
-You may apply the changes automatically using the commands provided below or perform the edits manually. If you choose manual configuration, open the primary configuration file.
+You can add drop-in configuration files or make the changes manually. If you choose manual configuration, open the primary configuration file and follow the instructions below.
 
 ```sh
 nano /etc/mkinitcpio.conf
@@ -1194,18 +1194,23 @@ nano /etc/mkinitcpio.conf
 
     === "Use LUKS encryption"
 
-        !!! info inline end ""
-
-            See the [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
-
         Integrate the `sd-encrypt` hook into the `HOOKS` array. This hook enables the system to prompt for decryption during the early boot stage.
 
-        === "Apply changes automatically"
+        === "Add drop-in configuration file"
 
-            Run the command below and review its output. Confirm that `sd-encrypt` appears after the `block` hook and before the `filesystems` hook in the `HOOKS=` line.
+            Create the following drop-in configuration file to automatically insert `sd-encrypt` immediately after the `block` hook in the `HOOKS=` array.
 
             ```sh
-            sed -ri '/^HOOKS=/ { /\bsd-encrypt\b/! s/\bblock\b/& sd-encrypt/; }' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
+            cat <<'EOF' > /etc/mkinitcpio.conf.d/10-add-luks-encryption-hook.conf
+            mapfile -t HOOKS < <(
+              for element in "${HOOKS[@]}"; do
+                echo "$element"
+                if [ "$element" = "block" ]; then
+                  echo "sd-encrypt"
+                fi
+              done
+            )
+            EOF
             ```
 
         === "Edit the file directly"
@@ -1216,15 +1221,15 @@ nano /etc/mkinitcpio.conf
             HOOKS=(... block sd-encrypt filesystems ...)
             ```
 
+        !!! info
+
+            See the [Encrypting an entire system: Configuring mkinitcpio](https://wiki.archlinux.org/title/Dm-crypt/Encrypting_an_entire_system#Configuring_mkinitcpio) for more details.
+
     === "Do not use LUKS encryption"
 
         No changes are required.
 
 ???+ example "Configure the NVIDIA driver"
-
-    !!! info inline end ""
-
-        See the [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
 
     To ensure the proprietary NVIDIA driver initializes correctly during the early boot stage, update both the `HOOKS` and `MODULES` arrays.
 
@@ -1232,12 +1237,20 @@ nano /etc/mkinitcpio.conf
 
     Removing `kms` from the `HOOKS` array prevents the inclusion of the `nouveau` module in the initramfs, ensuring the kernel cannot load the open-source driver early in the boot process and avoiding conflicts with the proprietary NVIDIA driver.
 
-    === "Apply changes automatically"
+    === "Add drop-in configuration file"
 
-        Run the command below and review its output. Confirm that `kms` no longer appears in the `HOOKS=` line.
+        Add this drop-in configuration file that will remove `kms` from `HOOKS` array
 
         ```sh
-        sed -ri '/^HOOKS=/ s/\bkms\b\s*//' /etc/mkinitcpio.conf && grep "^HOOKS=" /etc/mkinitcpio.conf
+        cat <<'EOF' > /etc/mkinitcpio.conf.d/20-remove-kms-hook.conf
+        mapfile -t HOOKS < <(
+          for element in "${HOOKS[@]}"; do
+            if [ "$element" != "kms" ]; then
+              echo "$element"
+            fi
+          done
+        )
+        EOF
         ```
 
     === "Edit the file directly"
@@ -1250,25 +1263,29 @@ nano /etc/mkinitcpio.conf
 
     **2. Add the required NVIDIA modules to `MODULES`**
 
-    These kernel modules ensure that the NVIDIA driver stack is loaded early during boot.
+    These kernel modules ensure the NVIDIA driver stack is available early in the boot process.
 
-    Select the configuration that matches your system.
+    Choose the configuration that matches your system.
 
-    === "Standard NVIDIA"
+    === "NVIDIA-only system"
 
-        Systems using only an NVIDIA GPU must load the full proprietary module set.
+        This configuration is for systems that use only an NVIDIA GPU.
 
-        === "Apply changes automatically"
+        The proprietary NVIDIA driver requires the following kernel modules to be loaded during early boot.
 
-            Run the command below and review its output. Confirm that the `MODULES=` line includes the following modules: `nvidia nvidia_modeset nvidia_uvm nvidia_drm`
+        === "Add drop-in configuration file"
+
+            Create a drop-in configuration file that appends the required NVIDIA kernel modules to the mkinitcpio `MODULES` array.
 
             ```sh
-            sed -ri '/^MODULES=/ { /\bnvidia\b/! s/\(/& nvidia nvidia_modeset nvidia_uvm nvidia_drm /; }' /etc/mkinitcpio.conf && grep "^MODULES=" /etc/mkinitcpio.conf
+            cat <<EOF > /etc/mkinitcpio.conf.d/30-add-nvidia-modules.conf
+            MODULES+=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+            EOF
             ```
 
         === "Edit the file directly"
 
-            Add the following kernel modules to the `MODULES` array.
+            Add the following NVIDIA kernel modules to the `MODULES` array.
 
             ```
             MODULES=(nvidia nvidia_modeset nvidia_uvm nvidia_drm)
@@ -1276,23 +1293,31 @@ nano /etc/mkinitcpio.conf
 
     === "Hybrid with Intel iGPU"
 
-        Systems using an NVIDIA GPU alongside an Intel integrated GPU (hybrid/Optimus) must also include the Intel `i915` module.
+        This configuration is for systems with an NVIDIA GPU and an Intel integrated GPU (Optimus or hybrid graphics).
 
-        === "Apply changes automatically"
+        Early boot requires both the Intel `i915` module and the NVIDIA driver modules.
 
-            Run the command below and review its output. Confirm that the `MODULES=` line includes the following modules: `i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm`
+        === "Add drop-in configuration file"
+
+            Create a drop-in configuration file that appends the required Intel and NVIDIA kernel modules to the mkinitcpio `MODULES` array.
 
             ```sh
-            sed -ri '/^MODULES=/ { /\bnvidia\b/! s/\(/& i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm /; }' /etc/mkinitcpio.conf && grep "^MODULES=" /etc/mkinitcpio.conf
+            cat <<EOF > /etc/mkinitcpio.conf.d/30-add-nvidia-modules.conf
+            MODULES+=(i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm)
+            EOF
             ```
-
-        === "Edit the file directly"
             
-            Add the following kernel modules to the `MODULES` array.
+        === "Edit the file directly"
+
+            Add the following Intel and NVIDIA kernel modules to the `MODULES` array.
 
             ```
             MODULES=(i915 nvidia nvidia_modeset nvidia_uvm nvidia_drm)
             ```
+
+    !!! info
+
+        See the [NVIDIA: Early loading](https://wiki.archlinux.org/title/NVIDIA#Early_loading) for more details.
 
 #### Regenerate initramfs
 
