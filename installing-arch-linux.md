@@ -24,21 +24,23 @@ hide:
 
 ## Preface
 
-[Arch Linux](https://archlinux.org/) uses a hands-on installation approach where you build the system step by step through commands. This design emphasizes clarity and user control. Without a guided installer or concealed automation, the entire setup remains open and deliberate, making each decision visible and easy to understand.
+[Arch Linux](https://archlinux.org/) uses a hands-on installation approach in which you build the system step by step using explicit commands. This design emphasizes clarity and user control. There is no guided installer or hidden automation. Every part of the setup is open, deliberate, and visible, making each decision easier to understand.
 
-After spending considerable time with the [Arch Wiki](https://wiki.archlinux.org/), I gradually refined my own approach into a set of notes focused on minimalism and privacy. This guide grew out of those notes. It is a curated sequence of commands with brief explanations and links back to the Arch Wiki for readers who want deeper detail.
+To learn which commands to run and, more importantly, to understand the system components involved and how they fit together, the primary resource is the [Arch Wiki](https://wiki.archlinux.org/). It is well maintained and offers an extensive collection of up-to-date information. In particular, the [Installation guide](https://wiki.archlinux.org/title/Installation_guide) provides the foundation for installing a working system.
 
-Although these commands could be combined into a single installation script, doing so would hide the reasoning behind each step and impose a fixed path. That tradeoff runs against the philosophy that makes Arch appealing in the first place.
+The reason this guide exists is that the Arch installation process encourages you to make your own choices. Doing so often requires substantial research, both on the Arch Wiki and elsewhere. The outcome of that research is a personal path: a specific sequence of commands paired with the reasoning behind them.
 
-The intent here is to provide a clear baseline without closing off alternatives. I consolidate common decisions into ready-to-run commands while leaving you free to follow them exactly, pause and inspect each step, diverge where needed, or rework the process entirely.
+This guide serves as a set of lab notes that records both the steps taken and the rationale for each decision, allowing the installation process to remain reproducible without losing context. I originally created it for my own use, primarily for a personal laptop or workstation. Over time, it became clear that the result was fairly generic: a minimal, reasonably secure system that could be useful on many machines.
 
-At several points, the guide presents prepared alternatives. These cover choices such as full-disk encryption, `ext4` versus `Btrfs`, NVIDIA driver installation, and package selection. Each option is self-contained and includes a complete set of commands you can use as-is.
+For that reason, I decided to share it with a broader audience. Common decisions are consolidated into ready-to-run command sequences, while still leaving you free to follow them exactly, pause to inspect each step, diverge where necessary, or rework the process entirely.
 
-Beyond installation, the guide covers practical configuration details. It shows how to align an NVMe drive to 4K sectors, enable TRIM in an encrypted setup, and create a clean partition layout with `parted`. It walks through configuring swap as a file, setting up `systemd-boot`, installing an [AUR](https://aur.archlinux.org/) helper, and enabling SSH during installation so you can work from another machine and copy commands easily.
+At several points, the guide presents prepared alternatives. These cover choices such as full-disk encryption, `ext4` versus `Btrfs`, NVIDIA driver installation, and package selection. Each option is self-contained and includes a complete set of commands that can be used as-is.
 
-This document does not replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the definitive reference. Use both together to understand the tradeoffs and adapt the system to your own priorities.
+Beyond the basic installation, the guide also addresses practical configuration details. It demonstrates how to align an NVMe drive to 4K sectors, enable TRIM in an encrypted setup, and create a clean partition layout using `parted`. It walks through configuring swap as a file, setting up `systemd-boot`, installing an [AUR](https://aur.archlinux.org/) helper, and enabling SSH during installation so you can work from another machine and copy commands easily.
 
-This guide is provided under the terms of the [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0).
+The guide is distributed under the permissive [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). I encourage you to submit a pull request if you want to add material in the same spirit, correct mistakes, or update the guide to reflect recent changes. You are also welcome to fork it and maintain your own version if your use case differs significantly.
+
+This document does not replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the definitive reference.
 
 !!! danger "Data loss warning"
 
