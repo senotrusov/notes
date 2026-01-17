@@ -126,6 +126,8 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
 
 === "Using `fdisk`"
 
+    List the available disks and partitions.
+
     ```sh
     sudo fdisk -l
     ```
@@ -279,6 +281,8 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
     ```
 
 === "Using `fdisk`"
+
+    List the available disks and partitions.
 
     ```sh
     fdisk -l
