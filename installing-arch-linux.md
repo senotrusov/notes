@@ -79,10 +79,10 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
     This method relies on the Arch Linux [download page](https://archlinux.org/download/#checksums) to securely provide the correct checksum.
 
     ```sh
-    curl -s https://archlinux.org/download/ |
-      grep -m1 "SHA256" |
-      grep -oE "[a-f0-9]{64}" |
-      sed "s/$/  archlinux-x86_64.iso/" |
+    curl --silent --show-error "https://archlinux.org/download/" |
+      grep -E --only-matching "SHA256.*[a-f0-9]{64}" |
+      awk 'NR==1' |
+      sed -E 's/SHA256.*([a-f0-9]{64})/\1  archlinux-x86_64.iso/' |
       sha256sum --check -
     ```
 
