@@ -176,10 +176,6 @@ Wired connections typically work automatically.
 
 ???+ example "Connect to the live environment by SSH (optional)"
 
-    !!! info inline end
-
-        Refer to the [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) guide for more information.
-
     Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research.
 
     ### Set a temporary root password
@@ -214,6 +210,10 @@ Wired connections typically work automatically.
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
         ```
 
+    !!! info
+
+        Refer to the [Install Arch Linux via SSH](https://wiki.archlinux.org/title/Install_Arch_Linux_via_SSH) guide for more information.
+
 ## Perform basic system checks
 
 ### Confirm UEFI boot mode
@@ -228,10 +228,6 @@ If the file exists and contains `64`, the system is in 64-bit UEFI mode. If the 
 
 ### Check system time
 
-!!! info inline end
-
-    For more details, see [Installation guide: Update the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
-
 Verify the current time and that NTP synchronization is active (handled automatically by `systemd-timesyncd` in the live environment).
 
 ```sh
@@ -239,6 +235,10 @@ timedatectl
 ```
 
 The time zone set here only affects the live environment and will be configured for the installed system later.
+
+!!! info
+
+    For more details, see [Installation guide: Update the system clock](https://wiki.archlinux.org/title/Installation_guide#Update_the_system_clock).
 
 ## Assign variables for disk identification
 
@@ -276,17 +276,17 @@ Use the appropriate tab for your disk type.
     root_actual="${root_physical:?}"
     ```
 
-*Note: The `root_actual` variable is initially set to the physical root partition and will be updated later if LUKS encryption is applied.*
+The `root_actual` variable is initially set to the physical root partition and will be updated later if LUKS encryption is applied.
 
 ## Check disk settings
 
 ### Ensure 4K block size on NVMe drives
 
-!!! info inline end
-
-    See [Advanced Format: NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for more details.
-
 Aligning your NVMe drive to a 4K (4096 bytes) logical sector size, if supported, improves performance and durability.
+
+!!! danger "Destructive operation with potential hardware risk"
+
+    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
 
 First, check the current logical sector size.
 
@@ -312,27 +312,27 @@ Next, verify the supported LBA formats to determine the optimal `FORMAT_ID`.
     nvme id-ns --human-readable "${target:?}"
     ```
 
-!!! danger "Destructive operation with potential hardware risk"
-
-    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
-
 If a 4K format is supported but not active, reformat the drive to the optimal LBA Format ID.
 
 ```sh
 nvme format --lbaf=FORMAT_ID "${target:?}"
 ```
 
+!!! info
+
+    See [Advanced Format: NVMe solid state drives](https://wiki.archlinux.org/title/Advanced_Format#NVMe_solid_state_drives) for more details.
+
 ### Verify TRIM support
-
-!!! info inline end
-
-    See [Solid state drive: TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for more details.
 
 Verify TRIM support, which allows the OS to communicate unused data blocks to a Solid State Drive (SSD) to maintain performance and lifespan. Non-zero values for `DISC-GRAN` and `DISC-MAX` confirm that TRIM support is present.
 
 ```sh
 lsblk --discard "${target:?}"
 ```
+
+!!! info
+
+    See [Solid state drive: TRIM](https://wiki.archlinux.org/title/Solid_state_drive#TRIM) for more details.
 
 ## Create partitions
 
@@ -348,7 +348,7 @@ Launch `parted` for interactive partitioning.
 parted "${target:?}"
 ```
 
-**Create a GPT partition table**
+### Create a GPT partition table
 
 Create a GPT (GUID Partition Table), the modern standard required for UEFI.
 
@@ -356,11 +356,7 @@ Create a GPT (GUID Partition Table), the modern standard required for UEFI.
 mklabel gpt
 ```
 
-**Set the unit to MiB for optimal alignment**
-
-!!! info inline end
-
-    See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
+### Set the unit to MiB for optimal alignment
 
 Set the unit to mebibytes (`MiB`) so that any values passed to `mkpart` are interpreted in this unit. Doing this first ensures partitions land on precise mebibyte boundaries, which avoids alignment problems and improves performance. Because the default `parted` unit is less exact, explicitly selecting `MiB` helps prevent unintended offsets.
 
@@ -368,7 +364,25 @@ Set the unit to mebibytes (`MiB`) so that any values passed to `mkpart` are inte
 unit MiB
 ```
 
-**Create the EFI system partition (ESP)**
+!!! info
+
+    See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
+
+### Create the EFI system partition (ESP)
+
+Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
+
+=== "Use LUKS encryption"
+
+    ```parted
+    mkpart efi fat32 1 1136
+    ```
+
+=== "Do not use LUKS encryption"
+
+    ```parted
+    mkpart efi fat32 1 1152
+    ```
 
 ???+ tip "Rationale for the 1152 MiB alignment point"
 
@@ -388,25 +402,7 @@ unit MiB
 
     As a side note, the boot partition is fine with 1 MiB alignment since it is rarely written.
 
-Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
-
-=== "Use LUKS encryption"
-
-    ```parted
-    mkpart efi fat32 1 1136
-    ```
-
-=== "Do not use LUKS encryption"
-
-    ```parted
-    mkpart efi fat32 1 1152
-    ```
-
-**Set the ESP flag**
-
-!!! info inline end
-
-    See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
+### Set the ESP flag
 
 Mark the first partition as the EFI System Partition, which is necessary for UEFI bootloaders.
 
@@ -414,7 +410,11 @@ Mark the first partition as the EFI System Partition, which is necessary for UEF
 set 1 esp on
 ```
 
-**Create the root partition**
+!!! info
+
+    See the [EFI system partition](https://wiki.archlinux.org/title/EFI_system_partition) for more information.
+
+### Create the root partition
 
 Create the root partition using all remaining disk space, starting immediately after the ESP.
 
@@ -430,7 +430,7 @@ Create the root partition using all remaining disk space, starting immediately a
     mkpart root 1152 100%
     ```
 
-**Check partition alignment**
+### Check partition alignment
 
 Verify optimal alignment for partition 1.
 
@@ -444,7 +444,7 @@ Verify optimal alignment for partition 2.
 align-check opt 2
 ```
 
-**Review and exit**
+### Review and exit
 
 Display the partition table to verify the final layout.
 
@@ -470,7 +470,7 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
     === "Use LUKS encryption"
 
-        If you choose to encrypt the root partition (`$root_physical`) with LUKS2, the decrypted device becomes `$root_actual`.
+        If you choose to encrypt the root partition `$root_physical` with LUKS2, the decrypted device becomes `$root_actual`.
 
         ### Format the root partition with LUKS2
 
@@ -490,12 +490,6 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
         cryptsetup --perf-no_read_workqueue --perf-no_write_workqueue --allow-discards --persistent open "${root_physical:?}" luks-root
         ```
 
-        !!! info
-
-            For details on discard support and performance tuning, see 
-            [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and 
-            [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
-
         ### Set the `root_actual` variable
 
         Update the variable so that subsequent filesystem operations target the decrypted container.
@@ -503,6 +497,12 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
         ```sh
         root_actual="/dev/mapper/luks-root"
         ```
+
+        !!! info
+
+            For details on discard support and performance tuning, see 
+            [Discard and TRIM support](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Discard/TRIM_support_for_solid_state_drives_(SSD)) and 
+            [Disabling the workqueue for SSD performance](https://wiki.archlinux.org/title/Dm-crypt/Specialties#Disable_workqueue_for_increased_solid_state_drive_(SSD)_performance).
 
     === "Do not use LUKS encryption"
 
@@ -512,48 +512,40 @@ Choose whether to encrypt the root partition with LUKS or proceed without encryp
 
 Format the partitions with the chosen filesystems and mount them to the installation directory (`/mnt`).
 
-!!! info
-
-    See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
-
 ### Root partition
 
-Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
+Choose either the traditional `ext4` filesystem or `Btrfs`.
+`Ext4` is a traditional, robust, and mature filesystem. `Btrfs` provides checksums and supports subvolumes and snapshotting for flexible organization.
 
 === "Ext4 filesystem"
 
-    !!! info inline end
-
-        See the [ext4](https://wiki.archlinux.org/title/ext4) guide for more information.
-
-    Ext4 is a traditional, robust, and mature filesystem.
-
-    **Format and mount:**
+    Create an ext4 filesystem on the partition.
 
     ```sh
     mkfs.ext4 "${root_actual:?}"
+    ```
+
+    Mount the root partition to `/mnt`.
+
+    ```sh
     mount -o noatime,commit=30 "${root_actual:?}" /mnt
     ```
 
     The `noatime` option improves performance by disabling file access time updates, and the `commit=30` option sets the maximum time (in seconds) that data is held in memory before being written to disk, balancing data loss risk and I/O performance.
 
+    !!! info
+
+        See the [ext4](https://wiki.archlinux.org/title/ext4) guide for more information.
+
 === "Btrfs filesystem"
 
-    !!! info inline end
-
-        See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide for details on Btrfs usage and subvolume setup.
-
-    Format the partition for Btrfs. Btrfs subvolumes enable flexible organization and snapshotting.
-
-    **Format the partition:**
+    Format the partition as Btrfs.
 
     ```sh
     mkfs.btrfs "${root_actual:?}"
     ```
 
-    **Create and mount subvolumes:**
-
-    Temporarily mount the top-level volume, create the standard subvolumes (`@` for root, `@home`, `@swap`), then unmount.
+    Temporarily mount the top-level filesystem to create a commonly adopted Btrfs subvolume layout (`@` for root, `@home`, and `@swap`).
 
     ```sh
     mount "${root_actual:?}" /mnt
@@ -563,7 +555,7 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
     umount /mnt
     ```
 
-    Mount the subvolumes to their final locations. The `noatime` option improves performance by disabling file access time updates, and `flushoncommit` prioritizes data integrity.
+    Mount the subvolumes at their final mount points.
 
     ```sh
     mount -o noatime,flushoncommit,subvol=/@ "${root_actual:?}" /mnt
@@ -571,25 +563,25 @@ Choose either the traditional `ext4` filesystem or `Btrfs` with subvolumes.
     mount --mkdir -o noatime,flushoncommit,subvol=/@swap "${root_actual:?}" /mnt/swap
     ```
 
+    The `noatime` option improves performance by disabling file access time updates, and `flushoncommit` prioritizes data integrity.
+
+    !!! info
+
+        See the [Btrfs](https://wiki.archlinux.org/title/Btrfs) guide for details on Btrfs usage and subvolume setup.
+
 ### EFI system partition
 
 Format the ESP as FAT32, which is required for UEFI booting.
-
-**Format the EFI partition as FAT32:**
 
 ```sh
 mkfs.fat -F 32 -S 4096 "${efi:?}"
 ```
 
-**Mount the EFI partition to `/mnt/boot`:**
-
-Mount the ESP with secure permissions (`umask=0077`) to protect the boot files.
+Mount the ESP partition to `/mnt/boot` with secure permissions (`umask=0077`) to protect the boot files.
 
 ```sh
 mount --mkdir -o noatime,umask=0077 "${efi:?}" /mnt/boot
 ```
-
-### Double-check mounts
 
 Verify that all partitions, including subvolumes, are correctly mounted under `/mnt`.
 
@@ -597,13 +589,13 @@ Verify that all partitions, including subvolumes, are correctly mounted under `/
 mount | grep /mnt
 ```
 
+!!! info
+
+    See [Installation guide: Format the partitions](https://wiki.archlinux.org/title/Installation_guide#Format_the_partitions), [Installation guide: Mount the file systems](https://wiki.archlinux.org/title/Installation_guide#Mount_the_file_systems), and [File systems](https://wiki.archlinux.org/title/File_systems) for more details.
+
 ## Install essential packages
 
 Select your CPU architecture below and run the corresponding code block in your shell to initialize the `packages` array. This array includes the kernel, firmware, boot manager tools, essential utilities, and the correct CPU microcode package.
-
-!!! tip "More package ideas"
-
-    See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
 
 ### Define the base system
 
@@ -713,6 +705,17 @@ Append optional packages such as desktop environments, drivers, and file system 
     )
     ```
 
+???+ example "AUR and development tools"
+
+    Install these packages if you intend to use the Arch User Repository (AUR). AUR helper installation is covered later in this guide.    
+
+    ```sh
+    packages+=(
+      git                # Distributed version control system
+      base-devel         # Basic tools to build Arch Linux packages
+    )
+    ```
+
 ???+ example "`systemd-resolved` system DNS resolver"
 
     Install this package only if you plan to use systemd-resolved and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless systemd-resolved will be enabled later in this guide.
@@ -722,7 +725,11 @@ Append optional packages such as desktop environments, drivers, and file system 
       systemd-resolvconf # resolvconf compatibility for systemd-resolved
     )
     ```
- 
+
+!!! tip "More package ideas"
+
+    See the [Installation guide: Install essential packages](https://wiki.archlinux.org/title/Installation_guide#Install_essential_packages) for a complete list of recommended packages.
+
 ### Run package installation
 
 After defining the base system and appending optional packages, run the following command to install all selected packages onto the mounted system.
@@ -737,25 +744,17 @@ The `-K` flag ensures a proper `pacman` keyring setup in the new system.
 
 ### Fstab (file system table)
 
-!!! info inline end
-
-    For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
-
 Generate the `fstab` file, which the system uses at boot to determine which filesystems to mount. The `-U` option ensures partitions are identified by their UUIDs for reliable mounting.
 
 ```sh
 genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-**Review `fstab`**
-
 Check the generated file to confirm the filesystem entries.
 
 ```sh
 cat /mnt/etc/fstab
 ```
-
-**Edit `fstab` (only if necessary)**
 
 Make any required adjustments to the file based on your setup.
 
@@ -777,11 +776,11 @@ Make any required adjustments to the file based on your setup.
     nano /mnt/etc/fstab
     ```
 
+!!! info
+
+    For details on configuring this file, see the [Installation guide: Fstab](https://wiki.archlinux.org/title/Installation_guide#Fstab).
+
 ### Configure systemd-boot
-
-!!! info inline end
-
-    For detailed documentation, consult the guides on [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot) and [UEFI: efibootmgr](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface#efibootmgr).
 
 Install the `systemd-boot` boot manager. This command populates the EFI System Partition (ESP) with the necessary binaries and creates the default configuration directory structure.
 
@@ -789,95 +788,95 @@ Install the `systemd-boot` boot manager. This command populates the EFI System P
 bootctl --esp-path=/mnt/boot install
 ```
 
-!!! info "Why run this twice?"
+???+ tip "Why `bootctl install` must be repeated later"
 
-    You will need to re-run this command later inside the chroot environment. The versions of packages on the live installation medium may be older than the versions installed on the target system, which can result in mismatches.
-    
-    However, the initial setup must be performed from *outside* the chroot because the chroot environment usually cannot query EFI variables to register the bootloader (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
+    Note that this `bootctl install` step must be repeated later inside the chroot environment. The versions of packages on the live installation medium may be older than those installed on the target system, which can lead to mismatches.
+
+    The initial invocation must be performed from outside the chroot, because a chroot environment cannot query EFI variables to register the bootloader (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
 
 ???+ example "Verifying and managing EFI boot entries"
 
     Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
 
-    !!! tip "About the Unicode Switch"
+    !!! danger "Risk of an unbootable system"
 
-        Although the UEFI specification mandates **UCS-2 (Unicode)** encoding for boot entry descriptions and arguments, `efibootmgr` defaults to **ASCII** to maintain compatibility with older or non-standard firmware. 
+        Deleting or reordering the wrong boot entry can prevent the system from booting. Verify that you are not modifying the entry for your current installation, any other operating systems in a multiboot setup, or the firmware interface.
+
+    ???+ tip "About the Unicode Switch"
+
+        Although the UEFI specification mandates UCS-2 (Unicode) encoding for boot entry descriptions and arguments, `efibootmgr` defaults to ASCII to maintain compatibility with older or non-standard firmware. 
         
         Most modern systems follow the standard and require the <span class="nobr">`--unicode`</span> switch. However, some firmware implementations are non-compliant and may expect ASCII. If your boot entries appear as unreadable garbage text or fail to pass arguments to the kernel, try toggling this switch to match your firmware's behavior.
 
-    **View boot order and entries**
-
-    You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
-
     === "With unicode switch"
+
+        <h4>View boot order and entries</h4>
+
+        You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
 
         ```sh
         efibootmgr --unicode
         ```
 
-    === "Without unicode switch"
-
-        ```sh
-        efibootmgr
-        ```
-
-    **Identify your new entry**
-    
-    The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
-
-    === "With unicode switch"
+        <h4>Identify your new entry</h4>
+        
+        The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
 
         ```sh
         efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
         ```
 
-    === "Without unicode switch"
-
-        ```sh
-        efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
-        ```
-
-    **Modify boot order**
-    
-    If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
-
-    === "With unicode switch"
+        <h4>Modify boot order</h4>
+        
+        If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
 
         ```sh
         efibootmgr --unicode --bootorder XXXX,XXXX 
         ```
 
-    === "Without unicode switch"
-
-        ```sh
-        efibootmgr --bootorder XXXX,XXXX 
-        ```
-
-    **Remove stale entries**
-    
-    You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
-    
-    !!! danger "Deleting the wrong entry can make the system unbootable"
-
-        Proceed with caution. Make sure you are not deleting the entry for your current installation, any other operating systems you use for multibooting, or the firmware interface.
-
-    === "With unicode switch"
-
+        <h4>Remove stale entries</h4>
+        
+        You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
+        
         ```sh
         efibootmgr --unicode --delete-bootnum --bootnum XXXX
         ```
 
     === "Without unicode switch"
 
+        <h4>View boot order and entries</h4>
+
+        You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
+
+        ```sh
+        efibootmgr
+        ```
+
+        <h4>Identify your new entry</h4>
+        
+        The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
+
+        ```sh
+        efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
+        ```
+
+        <h4>Modify boot order</h4>
+        
+        If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
+
+        ```sh
+        efibootmgr --bootorder XXXX,XXXX 
+        ```
+
+        <h4>Remove stale entries</h4>
+        
+        You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
+        
         ```sh
         efibootmgr --delete-bootnum --bootnum XXXX
         ```
 
 #### Configure `loader.conf`
-
-!!! info inline end
-
-    Consult the [systemd-boot: Loader configuration](https://wiki.archlinux.org/title/Systemd-boot#Loader_configuration) for additional configuration options.
 
 Set `arch.conf` as the default boot entry in the global bootloader configuration file.
 
@@ -889,7 +888,7 @@ echo "default arch.conf" >> /mnt/boot/loader/loader.conf
 
 Define the boot process for the Arch Linux kernel.
 
-**1. Get UUID**
+##### Get UUID
 
 First, retrieve the UUID of the physical root partition.
 
@@ -897,7 +896,7 @@ First, retrieve the UUID of the physical root partition.
 root_device_uuid="$(lsblk --nodeps --noheadings --output "UUID" "${root_physical:?}")"
 ```
 
-**2. Define kernel arguments**
+##### Define kernel arguments
 
 Selecting the right kernel parameters ensures that your system can locate and mount the root filesystem during boot. The next step tailors these parameters to your encryption method.
 
@@ -931,11 +930,7 @@ Before creating the final boot entry, make sure the kernel arguments also match 
     kernel_args="${kernel_args:?} rootflags=subvol=/@"
     ```
 
-**3. Create the configuration file**
-
-!!! info inline end
-
-    Read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading.
+##### Create the configuration file
 
 The microcode files (`intel-ucode.img` and `amd-ucode.img`) must appear before the main `initramfs-linux.img` in the configuration file to ensure they load first. The command below uses `tee` to create the `arch.conf` loader entry that references the appropriate microcode file or files, depending on the CPU architecture you select.
 
@@ -980,11 +975,15 @@ In this step, you again choose one of the architecture tabs. Select the same arc
     EOF
     ```
 
+!!! info
+
+    Consult the [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot) wiki page, read more about [Microcode and systemd-boot](https://wiki.archlinux.org/title/Microcode#systemd-boot) to ensure proper loading, and see [UEFI: efibootmgr](https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface#efibootmgr) for managing boot entries.
+
 ### Configure `systemd-resolved`
 
 The `/etc/resolv.conf` file is bind-mounted from the host system when using `arch-chroot`, so it cannot be replaced from inside the chroot. To ensure DNS resolution works correctly on the installed system, you must create the symlink before entering the chroot environment.
 
-Run the following command from outside the chroot:
+Run the following command from outside the chroot.
 
 ```sh
 ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
@@ -996,110 +995,139 @@ ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
 ## Chroot into the installed system for final configuration
 
-!!! info inline end
+Change the root directory to the newly installed system to complete the final configuration steps.
 
-    See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) for more information on this process.
-
-Change the root directory into the newly installed system to perform final, system-specific configurations.
+In an Arch Linux installation, `chroot` (change root) places you inside the installed system environment. Until now, you have been working from the live installation environment, which is outside the installed system. After chrooting, all commands will run as if the system were already booted.
 
 ```sh
 arch-chroot /mnt
 ```
 
+!!! info
+
+    See the [Installation guide: Chroot](https://wiki.archlinux.org/title/Installation_guide#Chroot) for more information on this process.
+
 ### Time configuration
 
-!!! info inline end
+Set the system time zone and enable automatic time synchronization.
 
-    For further details, see the [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and the [System time](https://wiki.archlinux.org/title/System_time) guide.
-
-Set the system time zone and enable automatic synchronization.
-
-List available time zones with.
+First, list the available time zones and choose the one appropriate for your location or for the system’s intended use, such as UTC for servers.
 
 ```sh
 timedatectl list-timezones
 ```
 
-Configure the system time zone by linking to the appropriate zone info file. Replace `Etc/UTC` with the time zone you want to use.
+Next, configure the system time zone by linking `/etc/localtime` to the appropriate zoneinfo file. Replace `Etc/UTC` with the time zone you want to use.
 
 ```sh
 ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 ```
 
-Synchronize the hardware clock from the system time to generate `/etc/adjtime`, and enable NTP for ongoing time updates.
+Finally, synchronize the hardware clock with the system time to generate `/etc/adjtime`, and enable NTP to keep the system clock updated automatically.
 
 ```sh
 hwclock --systohc
 systemctl enable systemd-timesyncd.service
 ```
 
+!!! info
+
+    For more information, see the [Installation guide: Time](https://wiki.archlinux.org/title/Installation_guide#Time) and the [System time](https://wiki.archlinux.org/title/System_time) documentation.
+
 ### Localization
 
-!!! tip "Choosing your locale"
+This section configures the system language, regional formatting, and console behavior.
 
-    If your primary locale is not US English, refer to the Arch Wiki’s [Installation guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization) to select the correct value and plan your configuration.
+#### Configure `/etc/locale.gen`
 
-Define a variable for your chosen locale. This variable will be used in the following steps.
+Locales must be generated before they can be used. The file `/etc/locale.gen` determines which locales will be built by `locale-gen`.
 
-```sh
-locale="en_US.UTF-8"
-```
+You can either edit the file and uncomment the locales you need, or overwrite it with only the required entries. Both methods are valid.
 
-#### 1. Configure `/etc/locale.gen`
+=== "Overwrite `/etc/locale.gen`"
 
-Uncomment your chosen locale(s) in the `/etc/locale.gen` file.
-
-=== "Apply changes automatically"
-
-    Run the following command to automatically uncomment the line matching the `locale` variable.
+    Begin by creating a backup of the file for future reference.
 
     ```sh
-    sed -ri "s/^#\s*(${locale//./[.]}(\s|\$))/\1/g" /etc/locale.gen
+    cp --update=none /etc/locale.gen /etc/locale.gen-dist
     ```
 
-    Verify the uncommented (active) lines in `/etc/locale.gen`.
+    Next, list the available locales. The example below filters for English locales, but you can adjust the search pattern.
 
     ```sh
-    grep -v "^#" /etc/locale.gen
+    grep -i en /usr/share/i18n/SUPPORTED
     ```
 
-=== "Edit the file directly"
+    Finally, write your selected locales to `/etc/locale.gen`. The example demonstrates a mixed European style that will be described later.
 
-    Open `/etc/locale.gen` and manually uncomment the appropriate line(s) (remove the `#` symbol).
+    ```sh
+    cat <<EOF > /etc/locale.gen
+    en_DK.UTF-8 UTF-8
+    en_IE.UTF-8 UTF-8
+    en_US.UTF-8 UTF-8
+    EOF
+    ```
+
+=== "Uncomment existing entries"
+
+    Open `/etc/locale.gen` and remove the leading `#` from the locales you want to enable.
 
     ```sh
     nano /etc/locale.gen
     ```
 
-#### 2. Generate locales
-
-Generate the configured locales.
+After updating the file, generate the locales:
 
 ```sh
 locale-gen
 ```
 
-#### 3. Create `/etc/locale.conf`
+#### Create `/etc/locale.conf`
 
-Create `/etc/locale.conf` to set the system-wide `LANG` environment variable.
+Create `/etc/locale.conf` to define system-wide locale environment variables.
 
-```sh
-echo "LANG=${locale:?}" > /etc/locale.conf
-```
-
-#### 4. Configure virtual console
-
-Configure the virtual console by editing `/etc/vconsole.conf`. This sets the keyboard layout (`KEYMAP`) and console font (`FONT`) for the TTY/boot environment.
-
-Example for US layout and Terminus font (Western European codepage, 28-pixel height, bold).
+The example below uses English (United States) for system messages, which is the least surprising option for most Linux software, while applying ISO date and time formatting, metric units for measurements, the euro for currency, and ISO 216 A4 as the default paper size.
 
 ```sh
-( echo "KEYMAP=us" && echo "FONT=ter-128b" ) > /etc/vconsole.conf
+cat <<EOF > /etc/locale.conf
+LANG=en_US.UTF-8
+LC_MEASUREMENT=en_IE.UTF-8
+LC_MONETARY=en_IE.UTF-8
+LC_PAPER=en_IE.UTF-8
+LC_TIME=en_DK.UTF-8
+EOF
 ```
 
-!!! warning "Ensure correct keymap when entering LUKS password at boot"
+Key points:
 
-    When using LUKS full disk encryption, the `KEYMAP` defined in `/etc/vconsole.conf` is the only layout active when prompted for the unlock password at boot. This keymap must match your physical keyboard layout to ensure you can correctly enter your password.
+* `LANG` defines the default locale and message language.
+* `LC_MEASUREMENT` enables metric units.
+* `LC_MONETARY` uses the euro.
+* `LC_PAPER` sets A4 as the default paper size.
+* `LC_TIME` applies ISO style date and time formatting.
+
+#### Configure the virtual console
+
+The virtual console settings control the keyboard layout and font used in TTYs and during early boot.
+
+Edit `/etc/vconsole.conf` to set `KEYMAP` and `FONT`.
+
+Example configuration for a US keyboard layout with the Terminus font (Western European codepage, 28 pixel height, bold):
+
+```sh
+cat <<EOF > /etc/vconsole.conf
+KEYMAP=us
+FONT=ter-128b
+EOF
+```
+
+!!! warning "Ensure correct keymap for disk unlock"
+
+    When using LUKS full disk encryption, the `KEYMAP` defined in `/etc/vconsole.conf` is the only keyboard layout available during boot when entering the unlock password. This layout must match your physical keyboard exactly, or you may not be able to type the correct password.
+
+!!! info
+
+    For additional details, see the [Arch Linux Installation Guide – Localization](https://wiki.archlinux.org/title/Installation_guide#Localization).
 
 ### Network configuration
 
@@ -1108,11 +1136,6 @@ Set a unique hostname for your system.
 ```sh
 echo myhostname > /etc/hostname
 ```
-
-!!! tip "Further Network Setup Guidance"
-
-    For additional guidance on network setup, see the [Installation guide: Network configuration](https://wiki.archlinux.org/title/Installation_guide#Network_configuration), the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide, and [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname).
-
 
 #### Configure systemd-resolved to use DNS over TLS
 
@@ -1128,7 +1151,7 @@ Create the configuration drop-in directory.
 mkdir -p /etc/systemd/resolved.conf.d
 ```
 
-Create a drop-in configuration file for your preferred DNS provider. Use one of the following examples or supply your own configuration. The configuration enforces encrypted DNS for all domains.
+Create a drop-in configuration file for your preferred DNS provider. Use one of the examples below or provide your own configuration. These examples enforce encrypted DNS resolution for all domains.
 
 === "Cloudflare"
 
@@ -1152,7 +1175,7 @@ Create a drop-in configuration file for your preferred DNS provider. Use one of 
     EOF
     ```
 
-=== "Cloudflare and Google"
+=== "Both Cloudflare and Google"
 
     ```sh
     cat <<EOF > /etc/systemd/resolved.conf.d/dns_over_tls.conf
@@ -1163,15 +1186,78 @@ Create a drop-in configuration file for your preferred DNS provider. Use one of 
     EOF
     ```
 
+#### Network management
+
+If you installed GNOME together with NetworkManager, networking will be managed automatically. NetworkManager will be enabled in a later section. 
+
+If you did not install GNOME and NetworkManager, you must configure networking manually. The example below uses [`systemd-networkd`](https://wiki.archlinux.org/title/Systemd-networkd) and should work out of the box for a wired Ethernet connection using DHCP.
+
+???+ abstract "Configure networking with systemd-networkd"
+
+    Enable the `systemd-networkd` service so it can manage network interfaces at boot.
+
+    ```sh
+    systemctl enable systemd-networkd.service
+    ```
+
+    Create the network configuration directory.
+
+    ```sh
+    mkdir -p /etc/systemd/network
+    ```
+
+    Create a basic DHCP profile for wired Ethernet interfaces.
+
+    ```sh
+    cat <<EOF > /etc/systemd/network/10-wired.network
+    [Match]
+    Name=en*
+    Name=eth*
+
+    [Link]
+    RequiredForOnline=routable
+
+    [Network]
+    DHCP=yes
+
+    [DHCPv4]
+    RouteMetric=100
+
+    [IPv6AcceptRA]
+    RouteMetric=100
+    EOF
+    ```
+
+    If you use Wi-Fi, you will also need a wireless network profile. Note that `systemd-networkd` does not handle Wi-Fi authentication, so you must connect and authenticate using [`wpa_supplicant`](https://wiki.archlinux.org/title/Wpa_supplicant) or the newer [`iwd`](https://wiki.archlinux.org/title/Iwd).
+
+    ```sh
+    cat <<EOF > /etc/systemd/network/60-wireless.network
+    [Match]
+    Name=wl*
+
+    [Link]
+    RequiredForOnline=routable
+
+    [Network]
+    DHCP=yes
+
+    [DHCPv4]
+    RouteMetric=600
+
+    [IPv6AcceptRA]
+    RouteMetric=600
+    EOF
+    ```
+
+!!! tip "Further network setup guidance"
+
+    See [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname) for hostname configuration, [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved) for DNS management, and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) page for additional networking guidance.
+
 ### Enable services that you may have optionally installed
 
 ???+ example "GNOME desktop environment"
 
     #### Enable the GNOME display manager (GDM)
-
-    !!! info inline end
-
-        See the [GDM](https://wiki.archlinux.org/title/GDM) guide for more details.
 
     If you installed the GNOME desktop environment, enable its display manager so the graphical login screen starts automatically at boot.
 
@@ -1195,21 +1281,17 @@ Create a drop-in configuration file for your preferred DNS provider. Use one of 
     systemctl enable bluetooth.service
     ```
 
+    !!! info
+
+        See the [GDM](https://wiki.archlinux.org/title/GDM) guide for details on the GNOME display manager, the [NetworkManager](https://wiki.archlinux.org/title/NetworkManager) guide for configuring networking, and the [Bluetooth](https://wiki.archlinux.org/title/Bluetooth) page for setting up Bluetooth support.
+
 ### Set root password and create a user
-
-!!! info inline end
-
-    See the [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context.
 
 Set a strong password for the root account. Even if you normally use `sudo` for administrative tasks, the root password is required for system recovery tasks such as entering the `systemd` emergency shell.
 
 ```sh
 passwd
 ```
-
-!!! info inline end
-
-    For additional details on account management, see the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide.
 
 Choose a username for your regular account (example: `foo`).
 
@@ -1235,38 +1317,61 @@ Enable `sudo` access for members of the `wheel` group.
 echo "%wheel ALL=(ALL:ALL) ALL" > /etc/sudoers.d/allow-wheel
 ```
 
+!!! info
+
+    See the [Installation guide: Root password](https://wiki.archlinux.org/title/Installation_guide#Root_password) for more context, and the [Users and groups](https://wiki.archlinux.org/title/Users_and_groups) guide for additional details on account management.
+
 ### Swap space setup
 
-!!! info inline end
+Even on systems with plenty of RAM, swap plays an important role. It provides backing storage for inactive memory pages, helping the kernel manage physical RAM more efficiently.
 
-    See the [Swap](https://wiki.archlinux.org/title/Swap) guide for a detailed guide to configuring swap space.
-
-Even with large amounts of RAM, swap is important because it provides a backing store for inactive program memory, allowing the kernel to better manage physical RAM and file caching.
-
-Select the appropriate method based on your filesystem to create and enable an 8 GiB (example size) swap file.
+Choose the method that matches your filesystem to create and enable a swap file. The examples below use an 8 GiB swap file, but the same steps apply to other sizes.
 
 === "Ext4 filesystem"
 
-    Create an 8 GiB swap file on an Ext4 root filesystem and add it to `fstab`.
+    Create a swap file on an Ext4 root filesystem and ensure it is activated at boot.
+
+    Start by creating a directory to hold the swap file.
 
     ```sh
     mkdir -p /swap
+    ```
+
+    Create the swap file with a fixed UUID and the desired size.
+
+    ```sh
     mkswap --uuid clear --size 8G --file /swap/swapfile
+    ```
+
+    Add the swap file to `fstab` so it is enabled automatically during boot.
+
+    ```sh
     echo "/swap/swapfile none swap defaults 0 0" >> /etc/fstab
     ```
+
+    !!! info
+
+        For more background and tuning options, see the [Swap](https://wiki.archlinux.org/title/Swap) documentation.
 
 === "Btrfs filesystem"
 
-    !!! info inline end
+    Create a swap file using Btrfs-specific tooling and enable it at boot. In this example, `/swap` refers to a directory where a dedicated `@swap` subvolume is already mounted.
 
-        A Btrfs swap file requires specific creation steps to avoid copy-on-write issues. See the [Btrfs: Swap file](https://wiki.archlinux.org/title/Btrfs#Swap_file) guide for more details.
-
-    Use the Btrfs-specific command to create the 8 GiB swap file and add it to `fstab`. `/swap` is a directory where the dedicated `@swap` subvolume was mounted earlier.
+    Use the Btrfs helper command to create the swap file.
 
     ```sh
     btrfs filesystem mkswapfile --size 8g --uuid clear /swap/swapfile
+    ```
+
+    Register the swap file in `fstab` so it is activated automatically.
+
+    ```sh
     echo "/swap/swapfile none swap defaults 0 0" >> /etc/fstab
     ```
+
+    !!! info
+
+        Additional details are covered in the [Btrfs: Swap file](https://wiki.archlinux.org/title/Btrfs#Swap_file) and [Swap](https://wiki.archlinux.org/title/Swap) documentation.
 
 ### Enable periodic TRIM
 
@@ -1284,10 +1389,6 @@ Select the appropriate method based on your filesystem to create and enable an 8
 
 ### Configure Mkinitcpio
 
-!!! info inline end
-
-    For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and the [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio) guide.
-
 The initial ramdisk environment (`initramfs`) must be configured correctly to ensure successful system booting, particularly when using LUKS encryption or proprietary NVIDIA drivers.
 
 You can add drop-in configuration files or make the changes manually. If you choose manual configuration, open the primary configuration file and follow the instructions below.
@@ -1298,7 +1399,7 @@ nano /etc/mkinitcpio.conf
 
 #### Configure boot-time initramfs settings
 
-!!! abstract "Configure disk encryption"
+???+ abstract "Configure disk encryption"
 
     === "Use LUKS encryption"
 
@@ -1337,11 +1438,11 @@ nano /etc/mkinitcpio.conf
 
         No changes are required.
 
-???+ example "Configure the NVIDIA driver"
+???+ abstract "Configure the NVIDIA driver"
 
     To ensure the proprietary NVIDIA driver initializes correctly during the early boot stage, update both the `HOOKS` and `MODULES` arrays.
 
-    **1. Remove the `kms` hook from `HOOKS`**
+    <h5>Remove the `kms` hook from `HOOKS`</h5>
 
     Removing `kms` from the `HOOKS` array prevents the inclusion of the `nouveau` module in the initramfs, ensuring the kernel cannot load the open-source driver early in the boot process and avoiding conflicts with the proprietary NVIDIA driver.
 
@@ -1369,7 +1470,7 @@ nano /etc/mkinitcpio.conf
         HOOKS=(...) # Make sure "kms" is not included!
         ```
 
-    **2. Add the required NVIDIA modules to `MODULES`**
+    <h5>Add the required NVIDIA modules to `MODULES`</h5>
 
     These kernel modules ensure the NVIDIA driver stack is available early in the boot process.
 
@@ -1435,11 +1536,11 @@ Save your changes if you edited the configuration file manually, then regenerate
 mkinitcpio -P
 ```
 
+!!! info
+
+    For more information, see the [Installation guide: Initramfs](https://wiki.archlinux.org/title/Installation_guide#Initramfs) and the [Mkinitcpio](https://wiki.archlinux.org/title/Mkinitcpio) guide.
+
 ### Boot loader finalization
-
-!!! info inline end
-
-    See the [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
 
 Re-run the boot installation command *inside* the chroot to ensure the bootloader files on the ESP match the system’s installed version.
 
@@ -1452,6 +1553,58 @@ Enable the automatic update service for `systemd-boot` to ensure the bootloader 
 ```sh
 systemctl enable systemd-boot-update.service
 ```
+
+!!! info
+
+    See the [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
+
+### Install AUR helper
+
+Install [yay](https://github.com/Jguer/yay), a popular helper for installing and managing packages from the Arch User Repository (AUR).
+
+???+ abstract "This is an optional step"
+
+    Use the prebuilt **`yay-bin`** package from the AUR. This avoids compiling `yay` from source while still following the standard AUR workflow.
+
+    Since building AUR packages as `root` is unsafe and disabled by default, switch to the regular user account created earlier.
+
+    ```sh
+    su - "${username:?}"
+    ```
+
+    Now, acting as your regular user, create a temporary directory and switch to it. This directory will be used to build the package.
+
+    ```sh
+    cd "$(mktemp -d)"
+    ```
+
+    Clone the `yay-bin` AUR repository into the current directory.
+
+    ```sh
+    git clone https://aur.archlinux.org/yay-bin.git .
+    ```
+
+    Build and install the package.
+
+    ```sh
+    makepkg -si
+    ```
+
+    Configure `yay` to always check for updates to development (`-git`) packages.
+
+    ```sh
+    yay --devel --save
+    ```
+
+    Exit the user shell to return to the root environment.
+
+    ```sh
+    exit
+    ```
+
+    !!! info
+
+        See the [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) guide and the [yay](https://github.com/Jguer/yay) project for more information.
 
 ### Exit chroot and reboot
 
@@ -1472,21 +1625,3 @@ reboot
 Congratulations! Your Arch Linux system should now boot.
 
 For further steps, see the [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and the [List of applications](https://wiki.archlinux.org/title/List_of_applications) guides.
-
-### Install AUR helper (optional)
-
-!!! info inline end
-
-    See the [AUR helpers](https://wiki.archlinux.org/title/AUR_helpers) guide and the [yay](https://github.com/Jguer/yay) project for more information.
-
-Install `yay`, a popular tool for installing and managing packages from the Arch User Repository (AUR). Run these commands as your regular user, not as root.
-
-```sh
-sudo pacman -S --needed git base-devel
-yay_temp="$(mktemp -d)"
-git clone https://aur.archlinux.org/yay-bin.git "${yay_temp:?}"
-(cd "${yay_temp:?}" && makepkg -si)
-rm -rf "${yay_temp:?}"
-```
-
-After installing, refer to the [First Use](https://github.com/Jguer/yay?tab=readme-ov-file#first-use) section of yay’s documentation. Review the instructions to decide if you wish to configure `yay` to automatically check for updates to development (`-git`) packages.
