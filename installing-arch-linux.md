@@ -110,7 +110,7 @@ Begin by identifying the USB device you plan to use. After verifying the correct
 
 You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command provides detailed information, while `fdisk` offers a shorter summary.
 
-=== "Using lsblk"
+=== "Using `lsblk`"
 
     Display the connected physical devices.
 
@@ -124,7 +124,7 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
     lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
     ```
 
-=== "Using fdisk"
+=== "Using `fdisk`"
 
     ```sh
     sudo fdisk -l
@@ -264,7 +264,7 @@ Identify the target disk by listing available block devices and assign the devic
 
 You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command provides detailed information, while `fdisk` offers a shorter summary.
 
-=== "Using lsblk"
+=== "Using `lsblk`"
 
     Display the connected physical devices.
 
@@ -278,7 +278,7 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
     lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
     ```
 
-=== "Using fdisk"
+=== "Using `fdisk`"
 
     ```sh
     fdisk -l
