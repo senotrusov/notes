@@ -32,7 +32,7 @@ The reason this guide exists is that the Arch installation process encourages yo
 
 This guide serves as a set of lab notes that records both the steps taken and the rationale for each decision, allowing the installation process to remain reproducible without losing context. I originally created it for my own use, primarily for a personal laptop or workstation. Over time, it became clear that the result was fairly generic: a minimal, reasonably secure system that could be useful on many machines.
 
-For that reason, I decided to share it with a broader audience. Common decisions are consolidated into ready-to-run command sequences, while still leaving you free to follow them exactly, pause to inspect each step, diverge where necessary, or rework the process entirely.
+For that reason, I decided to share it with a broader audience. Common decisions are consolidated into ready-to-run command sequences, while still leaving you free to follow them exactly, diverge where necessary, or rework the process entirely.
 
 At several points, the guide presents prepared alternatives. These cover choices such as full-disk encryption, `ext4` versus `Btrfs`, NVIDIA driver installation, and package selection. Each option is self-contained and includes a complete set of commands that can be used as-is.
 
