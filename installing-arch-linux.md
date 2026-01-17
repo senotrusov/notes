@@ -106,23 +106,41 @@ Verify the SHA256 hash to ensure the downloaded file matches the official signat
 
 ### Write the ISO to a USB drive
 
-Identify the target USB device using `fdisk -l`, then set the device path variable to prepare the bootable medium.
+Begin by identifying the USB device you plan to use. After verifying the correct device, store its path in a variable so you can safely proceed with creating the bootable drive.
 
-```sh
-sudo fdisk -l
-```
+You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command provides detailed information, while `fdisk` offers a shorter summary.
+
+=== "Using lsblk"
+
+    Display the connected physical devices.
+
+    ```sh
+    lsblk -dpo NAME,SIZE,TRAN,MODEL,REV,SERIAL
+    ```
+
+    Then view the same devices again with expanded partition and filesystem details.
+
+    ```sh
+    lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
+    ```
+
+=== "Using fdisk"
+
+    ```sh
+    sudo fdisk -l
+    ```
 
 !!! danger "All data on the selected device will be lost"
 
-    The device you select will be completely erased in the following steps. Choose carefully to avoid data loss.
+    The device you choose will be completely erased in the following steps. Double check your selection to avoid unintended data loss.
 
-Set the device path variable, replacing `sdX` with your USB drive’s actual device name (e.g., `sdb` or `mmcblk0`).
+Once you have confirmed the correct device, assign its path to a variable. Replace `sdX` with the actual device name of your USB drive.
 
 ```sh
 flash="/dev/sdX"
 ```
 
-Use `dd` to write the ISO to the USB device.
+Finally, use `dd` to write the ISO image to the device.
 
 ```sh
 sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
@@ -244,9 +262,27 @@ The time zone set here only affects the live environment and will be configured 
 
 Identify the target disk by listing available block devices and assign the device path and partition names to shell variables.
 
-```sh
-fdisk -l
-```
+You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command provides detailed information, while `fdisk` offers a shorter summary.
+
+=== "Using lsblk"
+
+    Display the connected physical devices.
+
+    ```sh
+    lsblk -dpo NAME,SIZE,TRAN,MODEL,REV,SERIAL
+    ```
+
+    Then view the same devices again with expanded partition and filesystem details.
+
+    ```sh
+    lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
+    ```
+
+=== "Using fdisk"
+
+    ```sh
+    fdisk -l
+    ```
 
 !!! danger "All data on the selected disk will be lost"
 
