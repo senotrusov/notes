@@ -1094,7 +1094,7 @@ You can either edit the file and uncomment the locales you need, or overwrite it
     Begin by creating a backup of the file for future reference.
 
     ```sh
-    cp --update=none /etc/locale.gen /etc/locale.gen-dist
+    cp /etc/locale.gen /etc/locale.gen-dist
     ```
 
     Next, list the available locales. The example below filters for English locales, but you can adjust the search pattern.
@@ -1243,12 +1243,6 @@ If you did not install GNOME and NetworkManager, you must configure networking m
 
     ```sh
     systemctl enable systemd-networkd.service
-    ```
-
-    Create the network configuration directory.
-
-    ```sh
-    mkdir -p /etc/systemd/network
     ```
 
     Create a basic DHCP profile for wired Ethernet interfaces.
