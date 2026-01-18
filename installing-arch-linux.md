@@ -623,6 +623,8 @@ Mount the ESP partition to `/mnt/boot` with secure permissions (`umask=0077`) to
 mount --mkdir -o noatime,umask=0077 "${efi:?}" /mnt/boot
 ```
 
+### Verify mounts
+
 Verify that all partitions, including subvolumes, are correctly mounted under `/mnt`.
 
 ```sh
@@ -742,7 +744,7 @@ Append optional packages such as desktop environments, drivers, and file system 
 
 ???+ example "AUR and development tools"
 
-    Install these packages if you intend to use the Arch User Repository (AUR). AUR helper installation is covered later in this guide.    
+    Install these packages only if you plan to use the [Arch User Repository (AUR)](https://wiki.archlinux.org/title/Arch_User_Repository). Instructions for installing an AUR helper are provided later in this guide.
 
     ```sh
     packages+=(
@@ -775,7 +777,7 @@ pacstrap -K /mnt "${packages[@]:?}"
 
 The `-K` flag ensures a proper `pacman` keyring setup in the new system.
 
-## Patch the system in `/mnt` before chroot
+## Prepare the installed system before entering chroot
 
 ### Fstab (file system table)
 
@@ -797,6 +799,8 @@ Make any required adjustments to the file based on your setup.
 
     Ext4 generally does not require manual editing. Since `genfstab` detects active mount options, the flags you used earlier (`noatime` and `commit=30`) should already be present.
 
+    Edit fstab if changes are needed.
+
     ```sh
     nano /mnt/etc/fstab
     ```
@@ -806,6 +810,8 @@ Make any required adjustments to the file based on your setup.
     Consider removing any `subvolid=` entries to rely solely on path-based `subvol=` mounts. This ensures that your system mounts the correct subvolumes even if their IDs change during a snapshot rollback.
     
     Since `genfstab` detects active mount options, the flags you used earlier (`noatime`, `flushoncommit`, and `subvol=`) should already be present.
+
+    Edit fstab if changes are needed.
 
     ```sh
     nano /mnt/etc/fstab
@@ -847,68 +853,84 @@ bootctl --esp-path=/mnt/boot install
 
         <h4>View boot order and entries</h4>
 
-        You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
+        List your current boot configuration, including the active `BootOrder` and all available boot entries.
 
         ```sh
         efibootmgr --unicode
         ```
 
         <h4>Identify your new entry</h4>
-        
-        The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
+
+        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition’s UUID to locate your new installation.
 
         ```sh
-        efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
-        ```
-
-        <h4>Modify boot order</h4>
-        
-        If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
-
-        ```sh
-        efibootmgr --unicode --bootorder XXXX,XXXX 
+        efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output PARTUUID "${efi:?}")"
         ```
 
         <h4>Remove stale entries</h4>
-        
-        You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
-        
+
+        Remove leftover entries from earlier installations or tests to keep the boot menu clean.
+
+        Replace `XXXX` with the hexadecimal boot number of the entry you want to remove.
+
         ```sh
         efibootmgr --unicode --delete-bootnum --bootnum XXXX
+        ```
+
+        <h4>Modify boot order</h4>
+
+        If the entries are not arranged as desired, set the full boot order manually.
+
+        Copy the boot numbers from the `BootOrder` line in the previous output. Rearrange them so your preferred entries come first, then apply the updated order.
+
+        * Replace `XXX1,XXX2,XXX3` with the actual hexadecimal boot numbers, such as `0001,0002,000A`.
+        * Always provide the complete list when updating the order, since partial updates are not supported.
+        * Any boot entries omitted from the order will not have a chance to boot.
+
+        ```sh
+        efibootmgr --unicode --bootorder XXX1,XXX2,XXX3
         ```
 
     === "Without unicode switch"
 
         <h4>View boot order and entries</h4>
 
-        You can list the current boot configuration, which includes the active `BootOrder` and a list of all available boot options.
+        List your current boot configuration, including the active `BootOrder` and all available boot entries.
 
         ```sh
         efibootmgr
         ```
 
         <h4>Identify your new entry</h4>
-        
-        The full list of boot entries can be confusing, often containing leftovers from previous installations or firmware defaults. To easily locate the entry for your new installation, filter the list using your EFI partition’s UUID.
+
+        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition’s UUID to locate your new installation.
 
         ```sh
-        efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output "PARTUUID" "${efi:?}")"
-        ```
-
-        <h4>Modify boot order</h4>
-        
-        If your new entry is not at the top of the list, you can manually update the boot order. Replace `XXXX` with the hexadecimal boot numbers (for example, `0001,0003`) found in the output above.
-
-        ```sh
-        efibootmgr --bootorder XXXX,XXXX 
+        efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output PARTUUID "${efi:?}")"
         ```
 
         <h4>Remove stale entries</h4>
-        
-        You may find leftover entries from previous installations or experiments. To keep your boot menu clean, you can delete these stale entries.
-        
+
+        Remove leftover entries from earlier installations or tests to keep the boot menu clean.
+
+        Replace `XXXX` with the hexadecimal boot number of the entry you want to remove.
+
         ```sh
         efibootmgr --delete-bootnum --bootnum XXXX
+        ```
+
+        <h4>Modify boot order</h4>
+
+        If the entries are not arranged as desired, set the full boot order manually.
+
+        Copy the boot numbers from the `BootOrder` line in the previous output. Rearrange them so your preferred entries come first, then apply the updated order.
+
+        * Replace `XXX1,XXX2,XXX3` with the actual hexadecimal boot numbers, such as `0001,0002,000A`.
+        * Always provide the complete list when updating the order, since partial updates are not supported.
+        * Any boot entries omitted from the order will not have a chance to boot.
+
+        ```sh
+        efibootmgr --bootorder XXX1,XXX2,XXX3
         ```
 
 #### Configure `loader.conf`
