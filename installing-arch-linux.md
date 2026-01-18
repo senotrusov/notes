@@ -823,17 +823,21 @@ Make any required adjustments to the file based on your setup.
 
 ### Configure systemd-boot
 
-Install the `systemd-boot` boot manager. This command populates the EFI System Partition (ESP) with the necessary binaries and creates the default configuration directory structure.
+Install the `systemd-boot` boot manager. This copies the required bootloader files into the EFI System Partition (ESP) and sets up the default configuration directory.
 
 ```sh
 bootctl --esp-path=/mnt/boot install
 ```
 
-???+ tip "Why `bootctl install` must be repeated later"
+???+ tip "Run `bootctl install` again after chrooting"
 
-    Note that this `bootctl install` step must be repeated later inside the chroot environment. The versions of packages on the live installation medium may be older than those installed on the target system, which can lead to mismatches.
+    You will need to run `bootctl install` again once you enter the chroot environment. The live installer may use different package versions than the target system, and reinstalling ensures the bootloader matches the installed system.
 
-    The initial invocation must be performed from outside the chroot, because a chroot environment cannot query EFI variables to register the bootloader (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
+    The first run must happen outside the chroot because only the live environment can access EFI variables to register the bootloader. This is a known limitation (see [systemd issue #36174](https://github.com/systemd/systemd/issues/36174)).
+
+#### Verify EFI boot entries
+
+By default, `bootctl install` places the newly created boot entry first in the boot order. If you want to verify it or manage the boot order or other entries, refer to the section below.
 
 ???+ example "Verifying and managing EFI boot entries"
 
