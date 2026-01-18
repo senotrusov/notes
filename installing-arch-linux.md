@@ -697,17 +697,12 @@ Append optional packages such as desktop environments, drivers, and file system 
 
 ???+ example "GNOME desktop environment"
 
-    Install these packages to get a complete, modern graphical desktop with integrated networking, audio, and Bluetooth support.
+    Install these packages to set up a modern graphical desktop with built in networking support.
 
     ```sh
     packages+=(
-      bluez              # Linux Bluetooth protocol stack
-      bluez-utils        # Bluetooth command-line utilities
       gnome              # Full GNOME desktop environment
-      gnome-terminal     # GNOME terminal emulator
       networkmanager     # Network connection management service
-      pipewire           # Audio and video processing framework
-      wireplumber        # PipeWire session manager
     )
     ```
 
