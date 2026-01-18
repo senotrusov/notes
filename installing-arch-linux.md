@@ -5,7 +5,7 @@ hide:
   - tags
 ---
 <!--
-  Copyright 2025 Stanislav Senotrusov
+  Copyright 2025-2026 Stanislav Senotrusov
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -18,27 +18,71 @@ hide:
   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
   See the License for the specific language governing permissions and
   limitations under the License.
+
+  ---
+
+  Copyright 2025-2026 Stanislav Senotrusov
+
+  Permission is hereby granted, free of charge, to any person obtaining a
+  copy of this software and associated documentation files (the "Software"),
+  to deal in the Software without restriction, including without limitation
+  the rights to use, copy, modify, merge, publish, distribute, sublicense,
+  and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be
+  included in all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+  DEALINGS IN THE SOFTWARE.
 -->
 
 # Installing <span class="nobr">Arch Linux</span>
 
 ## Preface
 
-[Arch Linux](https://archlinux.org/) uses a hands-on installation approach in which you build the system step by step using explicit commands. This design emphasizes clarity and user control. There is no guided installer or hidden automation. Every part of the setup is open, deliberate, and visible, making each decision easier to understand.
+[Arch Linux](https://archlinux.org/) uses a hands-on installation approach where you build the system step by step with explicit commands. This design emphasizes clarity and user control. There is no guided installer or hidden automation. Every part of the setup is open, deliberate, and visible, making each decision easier to understand.
 
 To learn which commands to run and, more importantly, to understand the system components involved and how they fit together, the primary resource is the [Arch Wiki](https://wiki.archlinux.org/). It is well maintained and offers an extensive collection of up-to-date information. In particular, the [Installation guide](https://wiki.archlinux.org/title/Installation_guide) provides the foundation for installing a working system.
 
-The reason this guide exists is that the Arch installation process encourages you to make your own choices. Doing so often requires substantial research, both on the Arch Wiki and elsewhere. The outcome of that research is a personal path: a specific sequence of commands paired with the reasoning behind them.
+The reason this guide exists is that the Arch installation process encourages you to make your own choices. Doing so often requires substantial research, both on the Arch Wiki and elsewhere. The result of that research is a personal path: a sequence of commands paired with the reasoning behind them.
 
-This guide serves as a set of lab notes that records both the steps taken and the rationale for each decision, allowing the installation process to remain reproducible without losing context. I originally created it for my own use, primarily for a personal laptop or workstation. Over time, it became clear that the result was fairly generic: a minimal, reasonably secure system that could be useful on many machines.
+This guide serves as a set of lab notes that records both the steps taken and the rationale for each decision, allowing the installation process to remain reproducible without losing context. I originally created it for my own use, primarily for a personal laptop or workstation. Over time, it became clear that the result was fairly generic: a minimal, reasonably secure system suitable for many machines.
 
-For that reason, I decided to share it with a broader audience. Common decisions are consolidated into ready-to-run command sequences, while still leaving you free to follow them exactly, diverge where necessary, or rework the process entirely.
+For that reason, I decided to share it with a broader audience. The guide consolidates common decisions into ready-to-run command sequences, while still giving you the freedom to follow them exactly, diverge where necessary, or rework the process entirely.
 
-At several points, the guide presents prepared alternatives. These cover choices such as full-disk encryption, `ext4` versus `Btrfs`, NVIDIA driver installation, and package selection. Each option is self-contained and includes a complete set of commands that can be used as-is.
+Throughout the guide, you will find prepared alternatives, including:
 
-Beyond the basic installation, the guide also addresses practical configuration details. It demonstrates how to align an NVMe drive to 4K sectors, enable TRIM in an encrypted setup, and create a clean partition layout using `parted`. It walks through configuring swap as a file, setting up `systemd-boot`, installing an [AUR](https://aur.archlinux.org/) helper, and enabling SSH during installation so you can work from another machine and copy commands easily.
+* Optional full disk encryption
+* Choice of `ext4` or `Btrfs` for the root file system
+* Optional NVIDIA driver installation
+* Different package selections
 
-The guide is distributed under the permissive [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0). I encourage you to submit a pull request if you want to add material in the same spirit, correct mistakes, or update the guide to reflect recent changes. You are also welcome to fork it and maintain your own version if your use case differs significantly.
+Each option includes a complete set of commands that you can use as-is.
+
+Beyond the base installation, the guide also covers several practical configuration steps, such as:
+
+* Enabling SSH during installation to allow remote access and easier command entry
+* Aligning an NVMe drive to 4K sectors
+* Enabling TRIM support for encrypted storage
+* Creating a clean partition layout with `parted`
+* Setting up swap as a file
+* Installing and configuring `systemd-boot`
+* Installing an [AUR](https://aur.archlinux.org/) helper
+
+This guide is released under either of the following permissive licenses, at your option:
+
+* [Apache License, Version 2.0](LICENSE-APACHE)
+* [MIT License](LICENSE-MIT)
+
+You may use the guide under the terms of either license. Contributions must be provided under both the Apache 2.0 and MIT licenses.
+
+If you would like to add improvements, correct mistakes, or update the guide for recent changes, feel free to submit a pull request. You are also welcome to fork the guide and maintain your own version if your needs differ.
 
 This document does not replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the definitive reference.
 
