@@ -1162,7 +1162,7 @@ Example configuration for a US keyboard layout with the Terminus font (Western E
 ```sh
 cat <<EOF > /etc/vconsole.conf
 KEYMAP=us
-FONT=ter-128b
+FONT=ter-124b
 EOF
 ```
 
@@ -1611,10 +1611,10 @@ Install [yay](https://github.com/Jguer/yay), a popular helper for installing and
 
     Use the prebuilt **`yay-bin`** package from the AUR. This avoids compiling `yay` from source while still following the standard AUR workflow.
 
-    Since building AUR packages as `root` is unsafe and disabled by default, switch to the regular user account created earlier.
+    Switch to the regular user account created earlier. You may see the error message `tty: ttyname error: No such device`. This happens because the chroot environment cannot resolve the terminal device path from the host. It is safe to ignore and does not affect the user session.
 
     ```sh
-    su - "${username:?}"
+    runuser -l "${username:?}"
     ```
 
     Now, acting as your regular user, create a temporary directory and switch to it. This directory will be used to build the package.
