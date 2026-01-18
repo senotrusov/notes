@@ -1659,7 +1659,7 @@ Exit the chroot environment to return to the live installation shell.
 exit
 ```
 
-Remove the installation USB drive and reboot the system into your new Arch Linux installation.
+Ensure the installation USB drive has been removed, then reboot the system into your new Arch Linux installation.
 
 ```sh
 reboot
