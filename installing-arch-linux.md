@@ -248,7 +248,7 @@ If the file exists and contains `64`, the system is in 64-bit UEFI mode. If the 
 
 ### Check system time
 
-Verify the current time and that NTP synchronization is active (handled automatically by `systemd-timesyncd` in the live environment).
+Verify the current time and that NTP synchronization is active.
 
 ```sh
 timedatectl
