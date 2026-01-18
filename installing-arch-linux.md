@@ -1075,7 +1075,7 @@ Configure the system clock to use the correct time zone and keep it synchronized
 First, list all supported time zones and identify the one that matches your region or intended system role, such as `UTC` for servers.
 
 ```sh
-timedatectl list-timezones
+timedatectl list-timezones | more
 ```
 
 Then, set the system time zone by linking `/etc/localtime` to the appropriate zoneinfo file. Replace `Etc/UTC` with the time zone you want.
@@ -1163,14 +1163,6 @@ LC_PAPER=en_IE.UTF-8
 LC_TIME=en_DK.UTF-8
 EOF
 ```
-
-Key points:
-
-* `LANG` defines the default locale and message language.
-* `LC_MEASUREMENT` enables metric units.
-* `LC_MONETARY` uses the euro.
-* `LC_PAPER` sets A4 as the default paper size.
-* `LC_TIME` applies ISO style date and time formatting.
 
 #### Configure the virtual console
 
