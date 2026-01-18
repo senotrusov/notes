@@ -1049,24 +1049,29 @@ arch-chroot /mnt
 
 ### Time configuration
 
-Set the system time zone and enable automatic time synchronization.
+Configure the system clock to use the correct time zone and keep it synchronized automatically.
 
-First, list the available time zones and choose the one appropriate for your location or for the system’s intended use, such as UTC for servers.
+First, list all supported time zones and identify the one that matches your region or intended system role, such as `UTC` for servers.
 
 ```sh
 timedatectl list-timezones
 ```
 
-Next, configure the system time zone by linking `/etc/localtime` to the appropriate zoneinfo file. Replace `Etc/UTC` with the time zone you want to use.
+Then, set the system time zone by linking `/etc/localtime` to the appropriate zoneinfo file. Replace `Etc/UTC` with the time zone you want.
 
 ```sh
 ln -sf /usr/share/zoneinfo/Etc/UTC /etc/localtime
 ```
 
-Finally, synchronize the hardware clock with the system time to generate `/etc/adjtime`, and enable NTP to keep the system clock updated automatically.
+Next, synchronize the hardware clock with the current system time and generate `/etc/adjtime`.
 
 ```sh
 hwclock --systohc
+```
+
+Finally, enable automatic network time synchronization to keep the clock accurate.
+
+```sh
 systemctl enable systemd-timesyncd.service
 ```
 
