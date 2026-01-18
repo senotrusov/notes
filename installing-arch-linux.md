@@ -307,10 +307,10 @@ Use the appropriate tab for your disk type.
 
 === "SATA HDDs/SSDs"
 
-    Replace `/dev/sdb` with the SATA device you want to use, and assign the partition names to variables.
+    Replace `/dev/sda` with the SATA device you want to use, and assign the partition names to variables.
 
     ```sh
-    target=/dev/sdb
+    target=/dev/sda
     efi="${target:?}1"
     root_physical="${target:?}2"
     root_actual="${root_physical:?}"
