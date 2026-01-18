@@ -115,13 +115,13 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
     Display the connected physical devices.
 
     ```sh
-    lsblk -dpo NAME,SIZE,TRAN,MODEL,REV,SERIAL
+    lsblk --nodeps --paths --output NAME,SIZE,TRAN,MODEL,REV,SERIAL
     ```
 
     Then view the same devices again with expanded partition and filesystem details.
 
     ```sh
-    lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
+    lsblk --paths --output NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
     ```
 
 === "Using `fdisk`"
@@ -271,13 +271,13 @@ You can locate the device with either `lsblk` or `fdisk`. The `lsblk` command pr
     Display the connected physical devices.
 
     ```sh
-    lsblk -dpo NAME,SIZE,TRAN,MODEL,REV,SERIAL
+    lsblk --nodeps --paths --output NAME,SIZE,TRAN,MODEL,REV,SERIAL
     ```
 
     Then view the same devices again with expanded partition and filesystem details.
 
     ```sh
-    lsblk -po NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
+    lsblk --paths --output NAME,SIZE,TYPE,MOUNTPOINTS,FSTYPE,LABEL,UUID,PARTTYPENAME,PARTLABEL
     ```
 
 === "Using `fdisk`"
