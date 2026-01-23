@@ -224,37 +224,85 @@ setfont ter-132b  # 32-pixel height
 
     For more details, see [Installation guide: Set the console keyboard layout and font](https://wiki.archlinux.org/title/Installation_guide#Set_the_console_keyboard_layout_and_font) and [Linux console: Fonts](https://wiki.archlinux.org/title/Linux_console#Fonts).
 
-## Network checks and optional SSH connection
+## Connect the installation environment to the network
 
-A stable network connection is mandatory for the installation. Test connectivity to ensure the live environment can reach the internet.
+A reliable network connection is required during installation, as packages are downloaded directly from remote mirrors.
+
+* Wired connections usually work automatically through DHCP. If an Ethernet cable is connected, the system is likely already online.
+* Wireless connections require additional setup. Follow the steps in the section below to configure Wi-Fi.
+* Mobile broadband connections, such as USB modems, are also supported. Refer to the [Mobile broadband modem](https://wiki.archlinux.org/title/Mobile_broadband_modem) wiki page for detailed instructions.
+
+???+ example "Connect to the WiFi network"
+
+    Start the interactive `iwctl` tool.
+
+    ```sh
+    iwctl
+    ```
+
+    Once inside `iwctl`, you will see a prompt that begins with `[iwd]#`. You can use the Tab key to auto-complete commands, device names, and network names.
+
+    List available devices to identify your wireless interface name, for example `wlan0`.
+
+    ```sh
+    device list
+    ```
+
+    Scan for networks and display the results. Replace `wlan0` with the device name identified in the previous step.
+
+    ```sh
+    station wlan0 get-networks
+    ```
+
+    Connect to your SSID. If the network is secured, `iwctl` will prompt you to enter the password securely.
+
+    ```sh
+    station wlan0 connect YOUR_NETWORK_SSID
+    ```
+
+    Verify the connection status. You should see `connected` under `State`, your SSID under `Connected network`, and an assigned IPv4 address.
+
+    ```sh
+    station wlan0 show
+    ```
+
+    Exit `iwctl` when finished.
+
+    ```sh
+    exit
+    ```
+
+!!! tip "Troubleshooting wireless"
+
+    If you cannot connect using the basic commands above, see the [Iwd wiki page](https://wiki.archlinux.org/title/Iwd) for more detailed guidance.
+
+    You may also find these resources helpful: [Installation guide: Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and [Network configuration](https://wiki.archlinux.org/title/Network_configuration).
+
+### Verify network connectivity
+
+Before continuing, confirm that the live environment has internet access.
 
 ```sh
-ping -c 3 archlinux.org
+ping -c 3 ping.archlinux.org
 ```
 
-Wired connections typically work automatically.
+## Access the installation environment remotely via SSH (optional)
 
-!!! tip "Wireless Network"
+You can use SSH to access the Arch Linux live environment from another machine. This is optional, but it can make the installation process more convenient by allowing copy and paste, quick access to documentation, and the ability to work from a more comfortable system while the installer runs on the target hardware.
 
-    For wireless setup or troubleshooting, see the [Installation guide: Connect to the internet](https://wiki.archlinux.org/title/Installation_guide#Connect_to_the_internet) and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) guide.
+???+ example "Connect to the live environment"
 
-???+ example "Connect to the live environment by SSH (optional)"
-
-    Using SSH from another machine can simplify the process by allowing for easy command copy-pasting and simultaneous research.
-
-    ### Set a temporary root password
-
-    Set a temporary root password for the live environment. This password allows SSH login and will not persist after the installation.
+    To allow SSH access, set a temporary root password in the Arch Linux live environment. This password is only valid for the live session and is discarded after installation.
 
     ```sh
     passwd
     ```
 
-    ### Establish an SSH session
+    If your client machine, meaning the system you are connecting from, supports mDNS, you can connect using the default hostname `archiso.local`. Otherwise, connect using the IP address assigned to the live environment.
 
     === "Connect with mDNS"
 
-        If your client machine supports mDNS (Multicast DNS), connect using the default hostname `archiso.local`.
+        Run the following command on the client machine to connect to `archiso.local`.
 
         ```sh
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@archiso.local
@@ -262,13 +310,13 @@ Wired connections typically work automatically.
 
     === "Connect with an IP address"
 
-        If mDNS fails, find the live environment’s IP address on the network.
+        First, determine the IP address of the live environment.
 
         ```sh
         ip addr
         ```
 
-        Use the assigned IP address to connect from your client machine, replacing `IP_ADDRESS`.
+        Then, on the client machine, use that IP address to connect, replacing `IP_ADDRESS` with the actual value.
 
         ```sh
         ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -l root IP_ADDRESS
@@ -1654,11 +1702,11 @@ systemctl enable systemd-boot-update.service
 
     See the [systemd-boot: Updating the UEFI boot manager](https://wiki.archlinux.org/title/Systemd-boot#Updating_the_UEFI_boot_manager) for more details.
 
-### Install AUR helper
+### Install AUR helper (optional)
 
 Install [yay](https://github.com/Jguer/yay), a popular helper for installing and managing packages from the Arch User Repository (AUR).
 
-???+ abstract "This is an optional step"
+???+ abstract "Installation steps"
 
     Use the prebuilt **`yay-bin`** package from the AUR. This avoids compiling `yay` from source while still following the standard AUR workflow.
 
