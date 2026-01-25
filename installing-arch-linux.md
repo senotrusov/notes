@@ -847,11 +847,26 @@ Append optional packages such as desktop environments, drivers, and file system 
 
 ???+ example "`systemd-resolved` system DNS resolver"
 
-    Install this package only if you plan to use systemd-resolved and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless systemd-resolved will be enabled later in this guide.
+    Install this package only if you plan to use `systemd-resolved` and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless `systemd-resolved` will be enabled later in this guide.
 
     ```sh
     packages+=(
       systemd-resolvconf # resolvconf compatibility for systemd-resolved
+    )
+    ```
+
+???+ example "`iwd` wireless networking daemon"
+
+    If you plan to install GNOME with NetworkManager, you generally do not need `iwd` unless you specifically want to reconfigure NetworkManager to use it as the Wi-Fi backend.
+
+    If you prefer to manage networking manually, for example with `systemd-networkd`, you may want to install `iwd`. It is a modern, lightweight wireless networking daemon. You may also want to install `impala`, a terminal interface for scanning, connecting to, and managing wireless networks with `iwd`.
+
+    A later section explains how to configure `iwd` to work with `systemd-networkd`.
+
+    ```sh
+    packages+=(
+      iwd                # Wireless network management daemon
+      impala             # TUI wireless network manager and frontend for iwd
     )
     ```
 
@@ -1146,6 +1161,22 @@ ln -sf ../run/systemd/resolve/stub-resolv.conf /mnt/etc/resolv.conf
 
     For more details about DNS handling and alternative setups, see the [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved) wiki page.
 
+### Copy `iwd` configuration (optional)
+
+If you successfully connected to Wi-Fi in the live environment and plan to manage wireless networks with `iwd`, you can copy the `iwd` wireless network configuration files to the installed system. This allows the same Wi-Fi setup to be available after reboot, so you do not need to configure it again.
+
+First, create the `iwd` configuration directory.
+
+```sh
+mkdir -m 700 /mnt/var/lib/iwd
+```
+
+Next, copy the network configuration files. It is safe to ignore any `omitting directory` warnings, as directories do not need to be copied.
+
+```sh
+cp /var/lib/iwd/* /mnt/var/lib/iwd
+```
+
 ## Chroot into the installed system for final configuration
 
 Change the root directory to the newly installed system to complete the final configuration steps.
@@ -1287,7 +1318,7 @@ Set a unique hostname for your system.
 echo myhostname > /etc/hostname
 ```
 
-#### Configure systemd-resolved to use DNS over TLS
+#### Configure `systemd-resolved` to use DNS over TLS
 
 Enable the `systemd-resolved` service.
 
@@ -1338,11 +1369,11 @@ Create a drop-in configuration file for your preferred DNS provider. Use one of 
 
 #### Network management
 
-If you installed GNOME together with NetworkManager, networking will be managed automatically. NetworkManager will be enabled in a later section. 
+If you installed GNOME with NetworkManager, networking is handled automatically. NetworkManager will be enabled in a later section.
 
-If you did not install GNOME and NetworkManager, you must configure networking manually. The example below uses [`systemd-networkd`](https://wiki.archlinux.org/title/Systemd-networkd) and should work out of the box for a wired Ethernet connection using DHCP.
+If you did not install GNOME or NetworkManager, you need to configure networking manually. The example below uses [`systemd-networkd`](https://wiki.archlinux.org/title/Systemd-networkd) and works out of the box for a wired Ethernet connection using DHCP. Optional Wi-Fi support is included via `iwd`.
 
-???+ abstract "Configure networking with systemd-networkd"
+???+ abstract "Configure networking with `systemd-networkd` and `iwd`"
 
     Enable the `systemd-networkd` service so it can manage network interfaces at boot.
 
@@ -1372,7 +1403,13 @@ If you did not install GNOME and NetworkManager, you must configure networking m
     EOF
     ```
 
-    If you use Wi-Fi, you will also need a wireless network profile. Note that `systemd-networkd` does not handle Wi-Fi authentication, so you must connect and authenticate using [`wpa_supplicant`](https://wiki.archlinux.org/title/Wpa_supplicant) or the newer [`iwd`](https://wiki.archlinux.org/title/Iwd).
+    If you use Wi-Fi, enable the `iwd` service so it can manage wireless networking.
+
+    ```sh
+    systemctl enable iwd.service
+    ```
+
+    Create a wireless network profile. After rebooting, you can use `iwctl` or the more user-friendly `impala` tool to manage wireless connections.
 
     ```sh
     cat <<EOF > /etc/systemd/network/60-wireless.network
@@ -1395,7 +1432,7 @@ If you did not install GNOME and NetworkManager, you must configure networking m
 
 !!! tip "Further network setup guidance"
 
-    See [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname) for hostname configuration, [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved) for DNS management, and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) page for additional networking guidance.
+    See [Network configuration: Set the hostname](https://wiki.archlinux.org/title/Network_configuration#Set_the_hostname) for hostname configuration, [systemd-resolved](https://wiki.archlinux.org/title/Systemd-resolved) for DNS management, [iwd](https://wiki.archlinux.org/title/Iwd) for wireless networking and connection management, and the [Network configuration](https://wiki.archlinux.org/title/Network_configuration) page for additional networking guidance.
 
 ### Enable services that you may have optionally installed
 
