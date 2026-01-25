@@ -56,12 +56,12 @@ While I originally built this for my own workstations, the setup is generic enou
 
 I've consolidated these decisions into ready-to-run command sequences. Feel free to follow them exactly or just use them as a starting point for your own configuration.
 
-The guide includes prepared alternatives for:
+This guide provides flexible options for:
 
-* Full disk encryption (optional)
-* Root file systems (`ext4` or `Btrfs`)
+* Full-disk encryption (optional)
+* Root file system selection (`ext4` or `Btrfs`)
 * NVIDIA driver installation
-* Different package selections
+* Modular package presets
 
 Beyond the base install, it also covers practical configuration steps like:
 
