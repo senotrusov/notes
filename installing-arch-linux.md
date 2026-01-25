@@ -1401,25 +1401,21 @@ If you did not install GNOME and NetworkManager, you must configure networking m
 
 ???+ example "GNOME desktop environment"
 
-    #### Enable the GNOME display manager (GDM)
+    If you installed the GNOME desktop environment, you need to enable a few services to ensure a fully functional graphical system.
 
-    If you installed the GNOME desktop environment, enable its display manager so the graphical login screen starts automatically at boot.
+    Enable the GNOME display manager so the graphical login screen starts automatically at boot.
 
     ```sh
     systemctl enable gdm.service
     ```
 
-    #### Enable NetworkManager
-
-    If NetworkManager is installed, enable it so network connections are managed automatically.
+    Enable NetworkManager so network connections are managed automatically.
 
     ```sh
     systemctl enable NetworkManager.service
     ```
 
-    #### Enable the Bluetooth service
-
-    If Bluetooth packages are installed, enable the Bluetooth service to manage devices.
+    Enable the Bluetooth service to manage Bluetooth devices.
 
     ```sh
     systemctl enable bluetooth.service
@@ -1431,7 +1427,7 @@ If you did not install GNOME and NetworkManager, you must configure networking m
 
 ### Set root password and create a user
 
-Set a strong password for the root account. Even if you normally use `sudo` for administrative tasks, the root password is required for system recovery tasks such as entering the `systemd` emergency shell.
+Set a password for the root account. Even if you normally use `sudo` for administrative tasks, the root password is required for system recovery tasks such as entering the `systemd` emergency shell.
 
 ```sh
 passwd
@@ -1449,7 +1445,7 @@ Create the user, including a home directory, and add them to the `wheel` group t
 useradd --create-home --groups wheel "${username:?}"
 ```
 
-Set a secure password for the new user.
+Set a password for the new user.
 
 ```sh
 passwd "${username:?}"
