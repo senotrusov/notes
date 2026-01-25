@@ -787,16 +787,16 @@ Select your CPU architecture below and run the corresponding code block in your 
 
 ### Add optional packages
 
-Append optional packages such as desktop environments, drivers, and file system utilities to the `packages` array as needed for your system.
+Append optional packages to the `packages` array as needed for your system, such as development tools, desktop software, networking components, drivers, and file system utilities.
 
-???+ example "GNOME desktop environment"
+???+ example "AUR and development tools"
 
-    Install these packages to set up a modern graphical desktop with built in networking support.
+    Install these packages only if you plan to use the [Arch User Repository (AUR)](https://wiki.archlinux.org/title/Arch_User_Repository). Instructions for installing an AUR helper are provided later in this guide.
 
     ```sh
     packages+=(
-      gnome              # Full GNOME desktop environment
-      networkmanager     # Network connection management service
+      git                # Distributed version control system
+      base-devel         # Basic tools to build Arch Linux packages
     )
     ```
 
@@ -810,6 +810,42 @@ Append optional packages such as desktop environments, drivers, and file system 
       noto-fonts         # Primary Unicode font family
       noto-fonts-cjk     # Chinese, Japanese, and Korean font support
       noto-fonts-emoji   # Emoji font for full emoji rendering
+    )
+    ```
+
+???+ example "GNOME desktop environment"
+
+    Install these packages to set up a modern graphical desktop with built in networking support.
+
+    ```sh
+    packages+=(
+      gnome              # Full GNOME desktop environment
+      networkmanager     # Network connection management service
+    )
+    ```
+
+???+ example "`iwd` wireless networking daemon"
+
+    If you plan to install GNOME with NetworkManager, you generally do not need `iwd` unless you specifically want to reconfigure NetworkManager to use it as the Wi-Fi backend.
+
+    If you prefer to manage networking manually, for example with `systemd-networkd`, you may want to install `iwd`. It is a modern, lightweight wireless networking daemon. You may also want to install `impala`, a terminal interface for scanning, connecting to, and managing wireless networks with `iwd`.
+
+    A later section explains how to configure `iwd` to work with `systemd-networkd`.
+
+    ```sh
+    packages+=(
+      iwd                # Wireless network management daemon
+      impala             # TUI wireless network manager and frontend for iwd
+    )
+    ```
+
+???+ example "`systemd-resolved` system DNS resolver"
+
+    Install this package only if you plan to use `systemd-resolved` and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless `systemd-resolved` will be enabled later in this guide.
+
+    ```sh
+    packages+=(
+      systemd-resolvconf # resolvconf compatibility for systemd-resolved
     )
     ```
 
@@ -831,42 +867,6 @@ Append optional packages such as desktop environments, drivers, and file system 
     packages+=(
       btrfs-progs        # Btrfs user-space management tools
       compsize           # Reports compression and disk usage on Btrfs
-    )
-    ```
-
-???+ example "AUR and development tools"
-
-    Install these packages only if you plan to use the [Arch User Repository (AUR)](https://wiki.archlinux.org/title/Arch_User_Repository). Instructions for installing an AUR helper are provided later in this guide.
-
-    ```sh
-    packages+=(
-      git                # Distributed version control system
-      base-devel         # Basic tools to build Arch Linux packages
-    )
-    ```
-
-???+ example "`systemd-resolved` system DNS resolver"
-
-    Install this package only if you plan to use `systemd-resolved` and need compatibility with software that expects the traditional resolvconf interface. Do not include it unless `systemd-resolved` will be enabled later in this guide.
-
-    ```sh
-    packages+=(
-      systemd-resolvconf # resolvconf compatibility for systemd-resolved
-    )
-    ```
-
-???+ example "`iwd` wireless networking daemon"
-
-    If you plan to install GNOME with NetworkManager, you generally do not need `iwd` unless you specifically want to reconfigure NetworkManager to use it as the Wi-Fi backend.
-
-    If you prefer to manage networking manually, for example with `systemd-networkd`, you may want to install `iwd`. It is a modern, lightweight wireless networking daemon. You may also want to install `impala`, a terminal interface for scanning, connecting to, and managing wireless networks with `iwd`.
-
-    A later section explains how to configure `iwd` to work with `systemd-networkd`.
-
-    ```sh
-    packages+=(
-      iwd                # Wireless network management daemon
-      impala             # TUI wireless network manager and frontend for iwd
     )
     ```
 
