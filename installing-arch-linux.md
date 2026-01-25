@@ -1791,8 +1791,22 @@ Ensure the installation USB drive has been removed, then reboot the system into 
 reboot
 ```
 
-## Post-installation
+## Post-Installation
 
-Congratulations! Your Arch Linux system should now boot.
+Congratulations! Your Arch Linux system is now ready to use.
 
-For further steps, see the [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and the [List of applications](https://wiki.archlinux.org/title/List_of_applications) guides.
+To keep your system and AUR packages up to date, you can use `yay` (if installed). It acts as a wrapper for `pacman` and handles official and community updates simultaneously.
+
+```sh
+yay
+```
+
+Alternatively, you can use the default package manager, `pacman`, for official repository updates.
+
+```sh
+sudo pacman -Syu
+```
+
+!!! info
+
+    For further steps, see the [General recommendations](https://wiki.archlinux.org/title/General_recommendations) and the [List of applications](https://wiki.archlinux.org/title/List_of_applications) guides.
