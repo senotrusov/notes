@@ -46,43 +46,37 @@ hide:
 
 ## Preface
 
-[Arch Linux](https://archlinux.org/) uses a hands-on installation approach where you build the system step by step with explicit commands. This design emphasizes clarity and user control. There is no guided installer or hidden automation. Every part of the setup is open, deliberate, and visible, making each decision easier to understand.
+[Arch](https://archlinux.org/) uses a manual installation process instead of a guided setup. You build the OS from the ground up using the command line, giving you total control over the environment. Because there's no automation, every configuration choice is yours, making the entire system much easier to troubleshoot and understand.
 
-To learn which commands to run and, more importantly, to understand the system components involved and how they fit together, the primary resource is the [Arch Wiki](https://wiki.archlinux.org/). It is well maintained and offers an extensive collection of up-to-date information. In particular, the [Installation guide](https://wiki.archlinux.org/title/Installation_guide) provides the foundation for installing a working system.
+The [Arch Wiki](https://wiki.archlinux.org/) is the primary resource for learning which commands to run and how the system components fit together. It is a well-maintained, massive collection of up-to-date information. Specifically, the [Installation guide](https://wiki.archlinux.org/title/Installation_guide) outlines the core steps for getting a functional system up and running.
 
-The reason this guide exists is that the Arch installation process encourages you to make your own choices. Doing so often requires substantial research, both on the Arch Wiki and elsewhere. The result of that research is a personal path: a sequence of commands paired with the reasoning behind them.
+Because Arch encourages you to make your own choices, the process usually requires quite a bit of research. This guide is the result of that research: it is a set of lab notes documenting my specific path, the commands I used, and the reasoning behind them. I wrote it to keep my own installations reproducible without losing the context of why I made certain decisions.
 
-This guide serves as a set of lab notes that records both the steps taken and the rationale for each decision, allowing the installation process to remain reproducible without losing context. I originally created it for my own use, primarily for a personal laptop or workstation. Over time, it became clear that the result was fairly generic: a minimal, reasonably secure system suitable for many machines.
+While I originally built this for my own workstations, the setup is generic enough to work for most machines. It results in a minimal, reasonably secure system suitable for daily use.
 
-For that reason, I decided to share it with a broader audience. The guide consolidates common decisions into ready-to-run command sequences, while still giving you the freedom to follow them exactly, diverge where necessary, or rework the process entirely.
+I've consolidated these decisions into ready-to-run command sequences. Feel free to follow them exactly or just use them as a starting point for your own configuration.
 
-Throughout the guide, you will find prepared alternatives, including:
+The guide includes prepared alternatives for:
 
-* Optional full disk encryption
-* Choice of `ext4` or `Btrfs` for the root file system
-* Optional NVIDIA driver installation
+* Full disk encryption (optional)
+* Root file systems (`ext4` or `Btrfs`)
+* NVIDIA driver installation
 * Different package selections
 
-Each option includes a complete set of commands that you can use as-is.
+Beyond the base install, it also covers practical configuration steps like:
 
-Beyond the base installation, the guide also covers several practical configuration steps, such as:
-
-* Enabling SSH during installation to allow remote access and easier command entry
-* Aligning an NVMe drive to 4K sectors
-* Enabling TRIM support for encrypted storage
-* Creating a clean partition layout with `parted`
-* Setting up swap as a file
-* Installing and configuring `systemd-boot`
+* Enabling SSH during the install for remote access and easier copy-pasting
+* Aligning NVMe drives to 4K sectors
+* Enabling TRIM support for encrypted drives
+* Setting up a clean partition layout with `parted`
+* Using a swap file instead of a partition
+* Configuring `systemd-boot`
+* Configuring networking with `systemd-networkd` and Wi-Fi connections with `iwd`
 * Installing an [AUR](https://aur.archlinux.org/) helper
 
-This guide is released under either of the following permissive licenses, at your option:
+This guide is dual-licensed under the [Apache License, Version 2.0](LICENSE-APACHE) and the [MIT License](LICENSE-MIT). You can choose to use it under the terms of either license. Please note that all contributions must be provided under both licenses.
 
-* [Apache License, Version 2.0](LICENSE-APACHE)
-* [MIT License](LICENSE-MIT)
-
-You may use the guide under the terms of either license. Contributions must be provided under both the Apache 2.0 and MIT licenses.
-
-If you would like to add improvements, correct mistakes, or update the guide for recent changes, feel free to submit a pull request. You are also welcome to fork the guide and maintain your own version if your needs differ.
+If you have improvements, corrections, or updates, feel free to submit a pull request. You are also welcome to fork this guide if your requirements are different.
 
 This document does not replace the official [Installation Guide](https://wiki.archlinux.org/title/Installation_guide), which remains the definitive reference.
 
@@ -202,7 +196,7 @@ sudo dd if=archlinux-x86_64.iso of="${flash:?}" bs=4M status=progress oflag=sync
 
 ## Boot from USB flash drive
 
-Access your system’s firmware (BIOS/UEFI) settings to select the USB drive as the boot device.
+Access your system's firmware (BIOS/UEFI) settings to select the USB drive as the boot device.
 
 The USB drive can be safely removed once the live environment loads to a shell prompt.
 
@@ -418,7 +412,7 @@ Aligning your NVMe drive to a 4K (4096 bytes) logical sector size, if supported,
 
 !!! danger "Destructive operation with potential hardware risk"
 
-    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer’s default format, even if it offers slightly lower performance, in exchange for peace of mind.
+    This operation is **destructive and will erase all data on the drive**. It has also been observed that some NVMe drives become unresponsive after formatting and require a system reboot before they operate again (although the new format will be applied afterward). It is also reasonable to assume that **some drives may become unusable due to firmware bugs**, as very few users ever change the factory default format. You likely do not want to be the first to discover such an issue, so proceed with caution and carefully **consider whether reformatting is worth the risk**. It is perfectly fine to stay with the manufacturer's default format, even if it offers slightly lower performance, in exchange for peace of mind.
 
 First, check the current logical sector size.
 
@@ -948,7 +942,7 @@ By default, `bootctl install` places the newly created boot entry first in the b
 
 ???+ example "Verifying and managing EFI boot entries"
 
-    Unlike legacy BIOS bootloaders, which reside physically on the disk’s Master Boot Record (MBR), UEFI boot entries are stored in the motherboard’s NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
+    Unlike legacy BIOS bootloaders, which reside physically on the disk's Master Boot Record (MBR), UEFI boot entries are stored in the motherboard's NVRAM (Non-Volatile RAM). Because of this, boot entries often persist even after a disk has been formatted or replaced.
 
     !!! danger "Risk of an unbootable system"
 
@@ -972,7 +966,7 @@ By default, `bootctl install` places the newly created boot entry first in the b
 
         <h4>Identify your new entry</h4>
 
-        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition’s UUID to locate your new installation.
+        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition's UUID to locate your new installation.
 
         ```sh
         efibootmgr --unicode | grep -F "$(lsblk --nodeps --noheadings --output PARTUUID "${efi:?}")"
@@ -1014,7 +1008,7 @@ By default, `bootctl install` places the newly created boot entry first in the b
 
         <h4>Identify your new entry</h4>
 
-        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition’s UUID to locate your new installation.
+        Boot lists often contain outdated or default firmware entries, which can make it difficult to find the one you just created. Filter the output by your EFI partition's UUID to locate your new installation.
 
         ```sh
         efibootmgr | grep -F "$(lsblk --nodeps --noheadings --output PARTUUID "${efi:?}")"
@@ -1308,7 +1302,7 @@ EOF
 
 !!! info
 
-    For additional details, see the [Arch Linux Installation Guide – Localization](https://wiki.archlinux.org/title/Installation_guide#Localization).
+    For additional details, see the [Arch Linux Installation Guide: Localization](https://wiki.archlinux.org/title/Installation_guide#Localization).
 
 ### Network configuration
 
@@ -1719,7 +1713,7 @@ mkinitcpio -P
 
 ### Boot loader finalization
 
-Re-run the boot installation command *inside* the chroot to ensure the bootloader files on the ESP match the system’s installed version.
+Re-run the boot installation command *inside* the chroot to ensure the bootloader files on the ESP match the system's installed version.
 
 ```sh
 bootctl install
