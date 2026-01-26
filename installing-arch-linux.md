@@ -494,7 +494,7 @@ unit MiB
 
     See [Advanced Format: Partition alignment](https://wiki.archlinux.org/title/Advanced_Format#Partition_alignment) for more details.
 
-### Create the EFI system partition (ESP)
+### Create the EFI system partition
 
 Create a FAT32 partition that occupies the space from 1 MiB up to the chosen alignment point, which comes out to roughly 1.10 GiB.
 
@@ -1558,7 +1558,7 @@ Choose the method that matches your filesystem to create and enable a swap file.
 
     No action is needed, since Btrfs automatically enables the `discard=async` mount option on devices that support it.
 
-### Configure Mkinitcpio
+### Configure `mkinitcpio`
 
 The initial ramdisk environment (`initramfs`) must be configured correctly to ensure successful system booting, particularly when using LUKS encryption or proprietary NVIDIA drivers.
 
@@ -1791,7 +1791,7 @@ Ensure the installation USB drive has been removed, then reboot the system into 
 reboot
 ```
 
-## Post-Installation
+## Post-installation
 
 Congratulations! Your Arch Linux system is now ready to use.
 
