@@ -7,39 +7,10 @@ hide:
 <!--
   Copyright 2025-2026 Stanislav Senotrusov
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+  This work is dual-licensed under the Apache License, Version 2.0 and the MIT License.
+  See LICENSE-APACHE and LICENSE-MIT in the top-level directory for details.
 
-      http://www.apache.org/licenses/LICENSE-2.0
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-  ---
-
-  Copyright 2025-2026 Stanislav Senotrusov
-
-  Permission is hereby granted, free of charge, to any person obtaining a
-  copy of this software and associated documentation files (the "Software"),
-  to deal in the Software without restriction, including without limitation
-  the rights to use, copy, modify, merge, publish, distribute, sublicense,
-  and/or sell copies of the Software, and to permit persons to whom the
-  Software is furnished to do so, subject to the following conditions:
-
-  The above copyright notice and this permission notice shall be
-  included in all copies or substantial portions of the Software.
-
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
-  THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
-  DEALINGS IN THE SOFTWARE.
+  SPDX-License-Identifier: Apache-2.0 OR MIT
 -->
 
 # Installing <span class="nobr">Arch Linux</span>
@@ -74,7 +45,7 @@ Beyond the base install, it also covers practical configuration steps like:
 * Configuring networking with `systemd-networkd` and Wi-Fi connections with `iwd`
 * Installing an [AUR](https://aur.archlinux.org/) helper
 
-This guide is dual-licensed under the [Apache License, Version 2.0](LICENSE-APACHE) and the [MIT License](LICENSE-MIT). You can choose to use it under the terms of either license. Please note that all contributions must be provided under both licenses.
+This guide is dual-licensed under the [Apache License, Version 2.0](LICENSE-APACHE) and the [MIT License](LICENSE-MIT). You can choose to use it under the terms of either license. By contributing, you agree to license your contributions under both licenses.
 
 If you have improvements, corrections, or updates, feel free to submit a pull request. You are also welcome to fork this guide if your requirements are different.
 
