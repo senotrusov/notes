@@ -923,7 +923,7 @@ By default, `bootctl install` places the newly created boot entry first in the b
 
         Although the UEFI specification mandates UCS-2 (Unicode) encoding for boot entry descriptions and arguments, `efibootmgr` defaults to ASCII to maintain compatibility with older or non-standard firmware. 
         
-        Most modern systems follow the standard and require the <span class="nobr">`--unicode`</span> switch. However, some firmware implementations are non-compliant and may expect ASCII. If your boot entries appear as unreadable garbage text or fail to pass arguments to the kernel, try toggling this switch to match your firmware's behavior.
+        Most modern systems follow the standard and require the `‑‑unicode` switch. However, some firmware implementations are non-compliant and may expect ASCII. If your boot entries appear as unreadable garbage text or fail to pass arguments to the kernel, try toggling this switch to match your firmware's behavior.
 
     === "With unicode switch"
 
