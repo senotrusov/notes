@@ -13,7 +13,7 @@ See LICENSE-APACHE and LICENSE-MIT in the top-level directory for details.
 SPDX-License-Identifier: Apache-2.0 OR MIT
 -->
 
-# Installing <span class="nobr">Arch Linux</span>
+# Installing Arch Linux
 
 ## Preface
 
